@@ -9,10 +9,11 @@
 </style>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://d3js.org/topojson.v2.min.js"></script>
 </head>
 
 <body>
-<h1>AirBnB vs. Hotel Pricings in Major Cities</h1>
+<h1>AirBnB Rooms vs. Hotel Pricings in Major Cities</h1>
 <h2>by Edwin Ma, Michelle Yang, Cynthia Zhu</h2>
 
 <p id="p1">
@@ -25,6 +26,64 @@
 	.append("svg")
 	.attr("width", width)
 	.attr("height", height);
+
+	var projection = d3.geoAlbersUsa().scale(75);
+	var pathGenerator = d3.geoPath().projection(projection);
+
+	var states;
+	var Atlas;
+
+	var parseRow = function(row) {
+		row.neighbourhood = row.neighbourhood;
+		row.latitude = Number(row.latitude);
+		row.longitude = Number(row.longitude);
+		row.price = Number(row.price);
+		row.room_type = row.room_type;
+		return row;
+	};
+
+	var Boston;
+	var Chicago;
+	var DC;
+	var LA;
+	var NewOrleans;
+	var NYC;
+	var Portland;
+	var SanDiego;
+	var Seattle;
+	var SF;
+
+	d3.queue()
+	.defer(d3.json, "us_map.json")
+	.defer(d3.csv, "listings_Boston.csv", parseRow)
+	.defer(d3.csv, "listings_Chicago.csv", parseRow)
+	.defer(d3.csv, "listings_DC.csv", parseRow)
+	.defer(d3.csv, "listings_LA.csv", parseRow)
+	.defer(d3.csv, "listings_NewOrleans.csv", parseRow)
+	.defer(d3.csv, "listings_NYC.csv", parseRow)
+	.defer(d3.csv, "listings_Portland.csv", parseRow)
+	.defer(d3.csv, "listings_SanDiego.csv", parseRow)
+	.defer(d3.csv, "listings_Seattle.csv", parseRow)
+	.defer(d3.csv, "listings_SF.csv", parseRow)
+	.await(function (error, rawMap, rawBoston, rawChicago, rawDC, rawLA, rawNewOrleans, rawNYC, rawPortland, rawSanDiego, rawSeattle, rawSF) {
+		states = topojson.feature(rawMap, rawMap.objects.states);
+
+	});
+
+	function drawMap(scale, variable) {
+		projection.fitExtent([[0,0], [svg.attr("width"), svg.attr("height")]], states);
+		pathGenerator = d3.geoPath().projection(projection);
+
+		var paths = svg.selectAll("path.country").data(states.features);
+		paths.enter().append("path").attr("class", "state")
+		.merge(paths)
+		
+		.attr("d", function (state) {
+			return pathGenerator(state);
+		});
+	}
+
+
 </script>
 
 </body>
