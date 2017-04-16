@@ -15,6 +15,7 @@
 			stroke: #888;
 		}
 
+<<<<<<< HEAD
 		.ticks {
   			font: 10px sans-serif;
 		}
@@ -50,6 +51,14 @@
 		  stroke-width: 1.25px;
 		}
 
+=======
+		circle {
+			fill-opacity: .5;
+			fill: red;
+			stroke: #fff;
+			stroke-width: .5px;
+		}
+>>>>>>> cb5893e7578e4ef1c6bb785ffafa956e4ea21079
 	</style>
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
@@ -71,14 +80,14 @@
 			.attr("width", width)
 			.attr("height", height);
 
-		var projection = d3.geoAlbersUsa().scale(75);
-		var pathGenerator = d3.geoPath().projection(projection);
+		var USAprojection = d3.geoAlbersUsa().scale(75);
+		var pathGenerator = d3.geoPath().projection(USAprojection);
 
 		var states;
 		var Atlas;
 
 		var parseRow = function(row) {
-			row.neighbourhood = row.neighbourhood;
+			//row.neighbourhood = row.neighbourhood;
 			row.latitude = Number(row.latitude);
 			row.longitude = Number(row.longitude);
 			row.price = Number(row.price);
@@ -91,11 +100,12 @@
 			row.january = Number(row.january.replace("$", ""));
 			return row;
 		};
-
+		var Austin; // do
 		var Boston;
 		var Chicago;
 		var DC;
 		var LA;
+		var Nashville; //do
 		var NewOrleans;
 		var NYC;
 		var Portland;
@@ -106,10 +116,12 @@
 
 		d3.queue()
 			.defer(d3.json, "us_map.json")
+			.defer(d3.csv, "listings_Austin.csv", parseRow)
 			.defer(d3.csv, "listings_Boston.csv", parseRow)
 			.defer(d3.csv, "listings_Chicago.csv", parseRow)
 			.defer(d3.csv, "listings_DC.csv", parseRow)
 			.defer(d3.csv, "listings_LA.csv", parseRow)
+			.defer(d3.csv, "listings_Nashville.csv", parseRow)
 			.defer(d3.csv, "listings_NewOrleans.csv", parseRow)
 			.defer(d3.csv, "listings_NYC.csv", parseRow)
 			.defer(d3.csv, "listings_Portland.csv", parseRow)
@@ -117,17 +129,18 @@
 			.defer(d3.csv, "listings_Seattle.csv", parseRow)
 			.defer(d3.csv, "listings_SF.csv", parseRow)
 			.defer(d3.csv, "hotel2016.txt")
-			.await(function(error, rawMap, rawBoston, rawChicago, rawDC, rawLA, rawNewOrleans, rawNYC, rawPortland, rawSanDiego, rawSeattle, rawSF, rawHotel) {
+			.await(function(error, rawMap, rawAustin, rawBoston, rawChicago, rawDC, rawLA, rawNashville, rawNewOrleans, rawNYC, rawPortland, rawSanDiego, rawSeattle, rawSF, rawHotel) {
 				states = topojson.feature(rawMap, rawMap.objects.states);
 				// the cities, this is for debugging
+				Austin = rawAustin;
 				Boston = rawBoston;
 				hotel = rawHotel;
 
-				projection.fitExtent([
+				USAprojection.fitExtent([
 					[0, 0],
 					[svg1.attr("width"), svg1.attr("height")]
 				], states);
-				pathGenerator = d3.geoPath().projection(projection);
+				pathGenerator = d3.geoPath().projection(USAprojection);
 
 				// draw the map
 				var paths = svg1.selectAll("path").data(states.features);
@@ -138,31 +151,115 @@
 					});
 
 				// scales
-				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 20]);
+				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
 
+				// city info text
+				var cityInfo = svg1.append("text").
+				attr("id", "CityInfo").
+				style("font-size", "24pt");
 				// draw the cities
-				var cities = {
-					Boston: {
-						name: "Boston",
-						longitude: 71.0589,
-						latitude: 42.3601,
-						variable: rawBoston
-					}
-				};
-
+				var cities = [{
+					name: "Austin",
+					longitude: -71.0589,
+					latitude: 42.3601,
+					variable: rawAustin
+				}, {
+					name: "Boston",
+					longitude: -97.7431,
+					latitude: 30.2672,
+					variable: rawBoston
+				}, {
+					name: "Chicago",
+					longitude: -87.6298,
+					latitude: 41.8781,
+					variable: rawChicago
+				}, {
+					name: "Washington D.C.",
+					longitude: -77.0369,
+					latitude: 38.9072,
+					variable: rawDC
+				}, {
+					name: "Los Angeles",
+					longitude: -118.2437,
+					latitude: 34.0522,
+					variable: rawBoston
+				}, {
+					name: "Nashville",
+					longitude: -86.7816,
+					latitude: 36.1627,
+					variable: rawNashville
+				}, {
+					name: "New Orleans",
+					longitude: -90.0715,
+					latitude: 29.9511,
+					variable: rawNewOrleans
+				}, {
+					name: "New York City",
+					longitude: -74.0059,
+					latitude: 40.7128,
+					variable: rawNYC
+				}, {
+					name: "Portland",
+					longitude: -122.6765,
+					latitude: 45.5231,
+					variable: rawPortland
+				}, {
+					name: "San Diego",
+					longitude: -117.1611,
+					latitude: 32.7157,
+					variable: rawSanDiego
+				}, {
+					name: "Seattle",
+					longitude: -122.3321,
+					latitude: 47.6062,
+					variable: rawSeattle
+				}, {
+					name: "San Francisco",
+					longitude: -122.4194,
+					latitude: 37.7749,
+					variable: rawSF
+				}];
+				/*
 				var circles = svg1.selectAll("circle").data(cities);
-				circles.enter().append("circle").merge(circles)
-					.attr("cx", function(d) {
-						console.log(projection(d)[0]);
-						return projection(d)[0];
-					})
-					.attr("cy", function(d) {
-						return projection(d)[1];
-					})
-					.attr("r", function(d) {
+
+				circles.enter().append("circle").
+				attr("r", function(d) {
+						console.log(circleScale(d.variable.length));
 						return circleScale(d.variable.length);
 					})
-					.style("fill", "red");
+					.merge(circles)
+					.attr("cx", function(d) {
+						console.log(USAprojection([d.longitude, d.latitude])[0]);
+						return USAprojection([d.longitude, d.latitude])[0];
+					})
+					.attr("cy", function(d) {
+						console.log(USAprojection(d.latitude));
+						return USAprojection([d.longitude, d.latitude])[1];
+					})
+					.style("fill", "red")
+					.on("mouseover", function() {
+						svg.select("#CityInfo").attr("x", function(d) {
+								return (USAprojection([d.longitude, d.latitude])[0]) + 50;
+							})
+							.attr("y", function(d) {
+								return (USAprojection([d.longitude, d.latitude])[1]) + 50;
+							})
+							.text()
+					});
+					*/
+				cities.forEach(function(city) {
+					svg1.append("circle")
+						.attr("r", circleScale(city.variable.length))
+						.attr("cx", USAprojection([city.longitude, city.latitude])[0])
+						.attr("cy", USAprojection([city.longitude, city.latitude])[1])
+						.on("mouseover", function() {
+							svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] + 50)
+								.attr("y", USAprojection([city.longitude, city.latitude])[1] + 50)
+								.text(city.name);
+						});
+
+				});
+
 
 
 				makeSlider();
