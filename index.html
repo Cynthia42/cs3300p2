@@ -15,50 +15,47 @@
 			stroke: #888;
 		}
 
-<<<<<<< HEAD
 		.ticks {
-  			font: 10px sans-serif;
+			font: 10px sans-serif;
 		}
 
 		.track,
 		.track-inset,
 		.track-overlay {
-  			stroke-linecap: round;
+			stroke-linecap: round;
 		}
 
 		.track {
-		  stroke: #000;
-		  stroke-opacity: 0.3;
-		  stroke-width: 10px;
+			stroke: #000;
+			stroke-opacity: 0.3;
+			stroke-width: 10px;
 		}
 
 		.track-inset {
-		  stroke: #ddd;
-		  stroke-width: 8px;
+			stroke: #ddd;
+			stroke-width: 8px;
 		}
 
 		.track-overlay {
-		  pointer-events: stroke;
-		  stroke-width: 50px;
-		  stroke: transparent;
-		  cursor: crosshair;
+			pointer-events: stroke;
+			stroke-width: 50px;
+			stroke: transparent;
+			cursor: crosshair;
 		}
 
 		.handle {
-		  fill: #fff;
-		  stroke: #000;
-		  stroke-opacity: 0.5;
-		  stroke-width: 1.25px;
+			fill: #fff;
+			stroke: #000;
+			stroke-opacity: 0.5;
+			stroke-width: 1.25px;
 		}
 
-=======
 		circle {
 			fill-opacity: .5;
 			fill: red;
 			stroke: #fff;
 			stroke-width: .5px;
 		}
->>>>>>> cb5893e7578e4ef1c6bb785ffafa956e4ea21079
 	</style>
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
@@ -73,8 +70,8 @@
 	</p>
 
 	<script>
-		var width = 900;
-		var height = 600;
+		var width = 600;
+		var height = 400;
 		var svg1 = d3.select("#p1")
 			.append("svg")
 			.attr("width", width)
@@ -156,17 +153,17 @@
 				// city info text
 				var cityInfo = svg1.append("text").
 				attr("id", "CityInfo").
-				style("font-size", "24pt");
+				style("font-size", "16pt");
 				// draw the cities
 				var cities = [{
 					name: "Austin",
-					longitude: -71.0589,
-					latitude: 42.3601,
+					longitude: -97.7431,
+					latitude: 30.2672,
 					variable: rawAustin
 				}, {
 					name: "Boston",
-					longitude: -97.7431,
-					latitude: 30.2672,
+					longitude: -71.0589,
+					latitude: 42.3601,
 					variable: rawBoston
 				}, {
 					name: "Chicago",
@@ -247,19 +244,26 @@
 							.text()
 					});
 					*/
+				// for regex purposes
+				var re = /room/;
+
 				cities.forEach(function(city) {
 					svg1.append("circle")
 						.attr("r", circleScale(city.variable.length))
 						.attr("cx", USAprojection([city.longitude, city.latitude])[0])
 						.attr("cy", USAprojection([city.longitude, city.latitude])[1])
 						.on("mouseover", function() {
-							svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] + 50)
-								.attr("y", USAprojection([city.longitude, city.latitude])[1] + 50)
-								.text(city.name);
+							svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
+								.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
+								.text(city.name + " # of listings" + city.variable.length + " avg. price" + d3.mean(city.variable, function(d) {
+									if ((d.room_type).match(re)) {
+										return d.price;
+									}
+								}));
 						});
 
 				});
-
+				//TODO: make function called "changeCircle"
 
 
 				makeSlider();
@@ -270,61 +274,74 @@
 
 		function makeSlider() {
 
-			var margin = {right: 50, left: 50};
+			var margin = {
+				right: 50,
+				left: 50
+			};
 			var svg_slider = d3.select('#p1')
-			.append("svg")
-			.attr("height", 600)
-			.attr("width", 500);
+				.append("svg")
+				.attr("height", 600)
+				.attr("width", 500);
 
 			var x = d3.scaleLinear()
-    		.domain([0, 180])
-    		.range([0, (width / 2) - margin.right])
-    		.clamp(true);
+				.domain([0, 180])
+				.range([0, (width / 2) - margin.right])
+				.clamp(true);
 
-    		var slider = svg_slider.append("g")
-    		.attr("class", "slider")
-    		.attr("transform", "translate(" + margin.left + "," + height / 4 + ")");
+			var slider = svg_slider.append("g")
+				.attr("class", "slider")
+				.attr("transform", "translate(" + margin.left + "," + height / 4 + ")");
 
-    		slider.append("line")
-    		.attr("class", "track")
-    		.attr("x1", x.range()[0])
-    		.attr("x2", x.range()[1])
-  			.select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    		.attr("class", "track-inset")
-  			.select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    		.attr("class", "track-overlay")
-    		.call(d3.drag()
-        	.on("start.interrupt", function() { slider.interrupt(); })
-        	.on("start drag", function() { hue(x.invert(d3.event.x)); }));
+			slider.append("line")
+				.attr("class", "track")
+				.attr("x1", x.range()[0])
+				.attr("x2", x.range()[1])
+				.select(function() {
+					return this.parentNode.appendChild(this.cloneNode(true));
+				})
+				.attr("class", "track-inset")
+				.select(function() {
+					return this.parentNode.appendChild(this.cloneNode(true));
+				})
+				.attr("class", "track-overlay")
+				.call(d3.drag()
+					.on("start.interrupt", function() {
+						slider.interrupt();
+					})
+					.on("start drag", function() {
+						hue(x.invert(d3.event.x));
+					}));
 
-        	slider.insert("g", ".track-overlay")
-    		.attr("class", "ticks")
-    		.attr("transform", "translate(0," + 18 + ")")
-  			.selectAll("text")
-			.data(x.ticks(10))
-			.enter().append("text")
-			.attr("x", x)
-			.attr("text-anchor", "middle")
-			.text(function(d) { return d + "°"; });
+			slider.insert("g", ".track-overlay")
+				.attr("class", "ticks")
+				.attr("transform", "translate(0," + 18 + ")")
+				.selectAll("text")
+				.data(x.ticks(10))
+				.enter().append("text")
+				.attr("x", x)
+				.attr("text-anchor", "middle")
+				.text(function(d) {
+					return d + "°";
+				});
 
 			var handle = slider.insert("circle", ".track-overlay")
-    		.attr("class", "handle")
-    		.attr("r", 9);
+				.attr("class", "handle")
+				.attr("r", 9);
 
-    		slider.transition()
-    		.duration(550)
-    		.tween("hue", function() {
-      		var i = d3.interpolate(0, 70);
-      		return function(t) { hue(i(t)); };
-    		});
+			slider.transition()
+				.duration(550)
+				.tween("hue", function() {
+					var i = d3.interpolate(0, 70);
+					return function(t) {
+						hue(i(t));
+					};
+				});
 
-    		function hue(h) {
-  				handle.attr("cx", x(h));
-  				svg_slider.style("background-color", d3.hsl(h, 0.8, 0.8));
+			function hue(h) {
+				handle.attr("cx", x(h));
+				svg_slider.style("background-color", d3.hsl(h, 0.8, 0.8));
 			}
 		};
-
-
 	</script>
 
 </body>

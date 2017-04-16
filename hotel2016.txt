@@ -1,5 +1,5 @@
-CITY January February March April May June July August September October November December
-New_York $214 $218 $278 $321 $359 $335 $287 $299 $407 $390 $340 $347
+CITY	January	February	March	April	May	June	July	August	September	October	November	December
+New_York	$214	$218	$278	$321	$359	$335	$287	$299	$407	$390	$340	$347
 Las_Vegas $149 $138 $139 $146 $136 $140 $138 $129 $159 $159 $144 $124
 Orlando $143 $150 $161 $145 $135 $136 $142 $122 $123 $132 $129 $144
 San_Francisco $202 $242 $236 $238 $283 $285 $279 $298 $304 $294 $203 $195
