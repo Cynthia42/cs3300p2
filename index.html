@@ -6,9 +6,9 @@
 	<title>Project 2 Title</title>
 
 	<style>
-		/**svg {
+		svg {
 			border: solid #ccc 1px;
-		}**/
+		}
 
 		path.state {
 			fill: #ccc;
@@ -77,11 +77,15 @@
 			.attr("width", width)
 			.attr("height", height);
 
+		var svg2 = d3.select("#p1")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
 		var USAprojection = d3.geoAlbersUsa().scale(75);
 		var pathGenerator = d3.geoPath().projection(USAprojection);
 
 		var states;
-		var Atlas;
 
 		var parseRow = function(row) {
 			//row.neighbourhood = row.neighbourhood;
@@ -89,6 +93,9 @@
 			row.longitude = Number(row.longitude);
 			row.price = Number(row.price);
 			row.room_type = row.room_type;
+			row.minimum_nights = Number(row.minimum_nights);
+			row.availability_365 = Number(row.availability_365);
+
 			return row;
 		};
 
@@ -110,6 +117,7 @@
 		var Seattle;
 		var SF;
 		var hotel;
+		var cities;
 
 		d3.queue()
 			.defer(d3.json, "us_map.json")
@@ -155,7 +163,8 @@
 				attr("id", "CityInfo").
 				style("font-size", "16pt");
 				// draw the cities
-				var cities = [{
+
+				cities = [{
 					name: "Austin",
 					longitude: -97.7431,
 					latitude: 30.2672,
@@ -216,36 +225,31 @@
 					latitude: 37.7749,
 					variable: rawSF
 				}];
-				/*
-				var circles = svg1.selectAll("circle").data(cities);
-
-				circles.enter().append("circle").
-				attr("r", function(d) {
-						console.log(circleScale(d.variable.length));
-						return circleScale(d.variable.length);
-					})
-					.merge(circles)
-					.attr("cx", function(d) {
-						console.log(USAprojection([d.longitude, d.latitude])[0]);
-						return USAprojection([d.longitude, d.latitude])[0];
-					})
-					.attr("cy", function(d) {
-						console.log(USAprojection(d.latitude));
-						return USAprojection([d.longitude, d.latitude])[1];
-					})
-					.style("fill", "red")
-					.on("mouseover", function() {
-						svg.select("#CityInfo").attr("x", function(d) {
-								return (USAprojection([d.longitude, d.latitude])[0]) + 50;
-							})
-							.attr("y", function(d) {
-								return (USAprojection([d.longitude, d.latitude])[1]) + 50;
-							})
-							.text()
-					});
-					*/
 				// for regex purposes
 				var re = /room/;
+
+				// adding attributes to cities
+				for (var i = 0; i < cities.length; i++) {
+					cities[i].avgPrice = d3.mean(cities[i].variable, function(d) {
+						if ((d.room_type).match(re)) {
+							return d.price;
+						}
+					});
+
+					cities[i].avgMinNights = d3.mean(cities[i].variable, function(d) {
+						if ((d.room_type).match(re)) {
+							return d.minimum_nights;
+						}
+					});
+
+					cities[i].avgAvailability = d3.mean(cities[i].variable, function(d) {
+						if ((d.room_type).match(re)) {
+							return d.availability_365;
+						}
+					});
+				}
+
+				console.log(cities);
 
 				cities.forEach(function(city) {
 					svg1.append("circle")
@@ -256,93 +260,73 @@
 							svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
 								.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
 								.text(city.name + " # of listings" + city.variable.length + " avg. price" + d3.mean(city.variable, function(d) {
+									// only average over the airBNBs for singe rooms
 									if ((d.room_type).match(re)) {
 										return d.price;
 									}
 								}));
+						}).on("click", function() {
+							console.log(city.name);
+							var paths = svg1.selectAll("path").data(states.features);
+
 						});
 
 				});
 				//TODO: make function called "changeCircle"
 
 
-				makeSlider();
+				//makeSlider();
 
+				// if priceSlider is used
+				var priceSlider = d3.select("#priceSlider");
+				priceSlider.on("input", function() {
+					changeCircles(this);
+					//console.log(value);
+				});
+
+				function changeCircles(sliderData) {
+					// remove and add circles depending on slider's value
+					console.log("value: " + sliderData.value); // gives slider's value
+					console.log("id: " + sliderData.id); // gives slider's id
+					var selectedCities;
+					if (sliderData.id == "priceSlider") {
+						selectedCities = cities.filter(function(d) {
+							return d.avgPrice < sliderData.value;
+						})
+						console.log(selectedCities);
+					};
+					svg1.selectAll("circle").remove();
+
+					selectedCities.forEach(function(city) {
+						svg1.append("circle")
+							.attr("r", circleScale(city.variable.length))
+							.attr("cx", USAprojection([city.longitude, city.latitude])[0])
+							.attr("cy", USAprojection([city.longitude, city.latitude])[1])
+							.on("mouseover", function() {
+								svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
+									.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
+									.text(city.name + " # of listings" + city.variable.length + " avg. price" + city.avgPrice);
+							})
+							.on("click", function() {
+								console.log("clicked a thing");
+								var paths = svg1.selectAll("path").data(states.features);
+							});
+
+					});
+
+
+
+
+
+				}
+
+				//******Handle clicking************
 			});
 
 		/********Slider*********/
-
-		function makeSlider() {
-
-			var margin = {
-				right: 50,
-				left: 50
-			};
-			var svg_slider = d3.select('#p1')
-				.append("svg")
-				.attr("height", 600)
-				.attr("width", 500);
-
-			var x = d3.scaleLinear()
-				.domain([0, 180])
-				.range([0, (width / 2) - margin.right])
-				.clamp(true);
-
-			var slider = svg_slider.append("g")
-				.attr("class", "slider")
-				.attr("transform", "translate(" + margin.left + "," + height / 4 + ")");
-
-			slider.append("line")
-				.attr("class", "track")
-				.attr("x1", x.range()[0])
-				.attr("x2", x.range()[1])
-				.select(function() {
-					return this.parentNode.appendChild(this.cloneNode(true));
-				})
-				.attr("class", "track-inset")
-				.select(function() {
-					return this.parentNode.appendChild(this.cloneNode(true));
-				})
-				.attr("class", "track-overlay")
-				.call(d3.drag()
-					.on("start.interrupt", function() {
-						slider.interrupt();
-					})
-					.on("start drag", function() {
-						hue(x.invert(d3.event.x));
-					}));
-
-			slider.insert("g", ".track-overlay")
-				.attr("class", "ticks")
-				.attr("transform", "translate(0," + 18 + ")")
-				.selectAll("text")
-				.data(x.ticks(10))
-				.enter().append("text")
-				.attr("x", x)
-				.attr("text-anchor", "middle")
-				.text(function(d) {
-					return d + "°";
-				});
-
-			var handle = slider.insert("circle", ".track-overlay")
-				.attr("class", "handle")
-				.attr("r", 9);
-
-			slider.transition()
-				.duration(550)
-				.tween("hue", function() {
-					var i = d3.interpolate(0, 70);
-					return function(t) {
-						hue(i(t));
-					};
-				});
-
-			function hue(h) {
-				handle.attr("cx", x(h));
-				svg_slider.style("background-color", d3.hsl(h, 0.8, 0.8));
-			}
-		};
 	</script>
+
+	<div id="sliders">Price: <input type="range" id="priceSlider" min="0" max="200"></div>
 
 </body>
 
