@@ -1,3 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Fjalla+One');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
+
 h1 {
 	text-align: center;
+	font-size: 50px;
+	font-family: "Fjalla One";
+	font-weight: bolder;
+	margin-top: 75px;
+
+}
+
+h2 {
+	text-align: center;
+	font-size: 20px;
+	font-family: 'Roboto Slab';
+	font-weight: 100;
+	margin-bottom: 50px;
+	color: gray;
+
 }
