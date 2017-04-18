@@ -15,41 +15,6 @@
 			stroke: #888;
 		}
 
-		.ticks {
-			font: 10px sans-serif;
-		}
-
-		.track,
-		.track-inset,
-		.track-overlay {
-			stroke-linecap: round;
-		}
-
-		.track {
-			stroke: #000;
-			stroke-opacity: 0.3;
-			stroke-width: 10px;
-		}
-
-		.track-inset {
-			stroke: #ddd;
-			stroke-width: 8px;
-		}
-
-		.track-overlay {
-			pointer-events: stroke;
-			stroke-width: 50px;
-			stroke: transparent;
-			cursor: crosshair;
-		}
-
-		.handle {
-			fill: #fff;
-			stroke: #000;
-			stroke-opacity: 0.5;
-			stroke-width: 1.25px;
-		}
-
 		circle {
 			fill-opacity: .5;
 			fill: red;
@@ -66,18 +31,21 @@
 <body>
 	<h1>AIRBNB vs. HOTELS IN MAJOR U.S. CITIES</h1>
 	<h2>by Edwin Ma, Michelle Yang, Cynthia Zhu</h2>
+	<div id="sliders">Availability (out of 365 days): <input type="range" id="availabilitySlider" min="100" max="365"> Minimum Nights for AirBNB: <input type="range" id="minNightsSlider" min="0" max="8"> Price: <input type="range" id="priceSlider" min="0" max="200"></div>
+	<p id="p1"></p>
 
-	<p id="p1">
-	</p>
 
 	<script>
-		var width = 600;
-		var height = 400;
+		var width = 800;
+		var height = 600;
+
+		// svg element for map of US
 		var svg1 = d3.select("#p1")
 			.append("svg")
 			.attr("width", width)
 			.attr("height", height);
 
+		// svg element that's filled when user clicks on circle (shows detailed city information)
 		var svg2 = d3.select("#p1")
 			.append("svg")
 			.attr("width", width)
@@ -88,6 +56,7 @@
 
 		var states;
 
+		// for parsing airBNB data
 		var parseRow = function(row) {
 			//row.neighbourhood = row.neighbourhood;
 			row.latitude = Number(row.latitude);
@@ -96,29 +65,24 @@
 			row.room_type = row.room_type;
 			row.minimum_nights = Number(row.minimum_nights);
 			row.availability_365 = Number(row.availability_365);
-
 			return row;
 		};
 
-		var parseHotel = function(row) {
-			row.city = row.city
-			row.january = Number(row.january.replace("$", ""));
-			return row;
-		};
-		var Austin; // do
+		// global variables for debugging
+		var Austin;
 		var Boston;
 		var Chicago;
 		var DC;
 		var LA;
-		var Nashville; //do
+		var Nashville;
 		var NewOrleans;
 		var NYC;
 		var Portland;
 		var SanDiego;
 		var Seattle;
 		var SF;
-		var hotel;
-		var cities;
+		var hotel; // hotel2016.txt data
+		var cities; // array of objects
 
 		d3.queue()
 			.defer(d3.json, "us_map.json")
@@ -134,13 +98,14 @@
 			.defer(d3.csv, "listings_SanDiego.csv", parseRow)
 			.defer(d3.csv, "listings_Seattle.csv", parseRow)
 			.defer(d3.csv, "listings_SF.csv", parseRow)
-			.defer(d3.csv, "hotel2016.txt")
+			.defer(d3.tsv, "hotel2016.txt")
 			.await(function(error, rawMap, rawAustin, rawBoston, rawChicago, rawDC, rawLA, rawNashville, rawNewOrleans, rawNYC, rawPortland, rawSanDiego, rawSeattle, rawSF, rawHotel) {
 				states = topojson.feature(rawMap, rawMap.objects.states);
 				// the cities, this is for debugging
 				Austin = rawAustin;
 				Boston = rawBoston;
 				hotel = rawHotel;
+
 
 				USAprojection.fitExtent([
 					[0, 0],
@@ -159,12 +124,12 @@
 				// scales
 				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
 
-				// city info text
+				// city info text element
 				var cityInfo = svg1.append("text").
 				attr("id", "CityInfo").
 				style("font-size", "16pt");
-				// draw the cities
 
+				// cities array
 				cities = [{
 					name: "Austin",
 					longitude: -97.7431,
@@ -226,10 +191,11 @@
 					latitude: 37.7749,
 					variable: rawSF
 				}];
+
 				// for regex purposes
 				var re = /room/;
 
-				// adding attributes to cities
+				// adding attributes to cities programmatically
 				for (var i = 0; i < cities.length; i++) {
 					cities[i].avgPrice = d3.mean(cities[i].variable, function(d) {
 						if ((d.room_type).match(re)) {
@@ -250,9 +216,40 @@
 					});
 				}
 
-				console.log(cities);
+				var sliderPrice = 100,
+					sliderMinNights = 10,
+					sliderAvailability = 182.5;
 
-				cities.forEach(function(city) {
+				// getting slider values
+				var priceSlider = d3.select("#priceSlider");
+				//console.log("priceSlider:" + priceSlider.value);
+				priceSlider.on("input", function() {
+					sliderPrice = this.value;
+					changeCircles(this);
+				});
+
+				var minNightsSlider = d3.select("#minNightsSlider");
+				minNightsSlider.on("input", function() {
+					sliderMinNights = this.value;
+					changeCircles(this);
+				});
+
+				var availabilitySlider = d3.select("#availabilitySlider");
+				availabilitySlider.on("input", function() {
+					sliderAvailability = this.value;
+					changeCircles(this);
+				});
+
+				// handles circles when slider isn't used
+
+				var selectedCities = cities.filter(function(d) {
+					return ((d.avgPrice < (document.getElementById("priceSlider").max + document.getElementById("priceSlider").min) / 2) && (d.avgMinNights < document.getElementById("minNightsSlider").max) && (d.avgAvailability < document.getElementById(
+						"availabilitySlider").max));
+				});
+
+				var clickedCities = [];
+
+				selectedCities.forEach(function(city) {
 					svg1.append("circle")
 						.attr("r", circleScale(city.variable.length))
 						.attr("cx", USAprojection([city.longitude, city.latitude])[0])
@@ -260,42 +257,70 @@
 						.on("mouseover", function() {
 							svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
 								.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
-								.text(city.name + " # of listings" + city.variable.length + " avg. price" + d3.mean(city.variable, function(d) {
-									// only average over the airBNBs for singe rooms
-									if ((d.room_type).match(re)) {
-										return d.price;
-									}
-								}));
+								.text(city.name + " # of listings" + city.variable.length + " avg. price" + city.avgPrice);
 						}).on("click", function() {
-							console.log(city.name);
-							var paths = svg1.selectAll("path").data(states.features);
+							if (clickedCities.indexOf(city) == -1) {
+								// add to array if city doesn't already exist
+								clickedCities.push(city);
+							} else {
+								// remove city from array if it already exists
+								clickedCities.splice(clickedCities.indexOf(city), 1);
+							}
+
+							console.log(clickedCities);
+							showCitiesInfo(selectedCities);
+							//var paths = svg1.selectAll("path").data(states.features);
 
 						});
 
 				});
-				//TODO: make function called "changeCircle"
+
+				/*
+				var circles = svg1.selectAll("circle").data(cities);
+
+				circles.enter().append("circle")
+					.attr("r", circleScale(city.variable.length))
+					.attr("cx", USAprojection([city.longitude, city.latitude])[0])
+					.attr("cy", USAprojection([city.longitude, city.latitude])[1])
+					.on("mouseover", function() {
+						svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
+							.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
+							.text(city.name + " # of listings" + city.variable.length + " avg. price" + city.avgPrice);
+					}).on("click", function() {
+						console.log(city.name);
+						var paths = svg1.selectAll("path").data(states.features);
+					});
+
+					*/
 
 
-				//makeSlider();
 
-				// if priceSlider is used
-				var priceSlider = d3.select("#priceSlider");
-				priceSlider.on("input", function() {
-					changeCircles(this);
-					//console.log(value);
-				});
 
+				// for changing circles
 				function changeCircles(sliderData) {
 					// remove and add circles depending on slider's value
-					console.log("value: " + sliderData.value); // gives slider's value
-					console.log("id: " + sliderData.id); // gives slider's id
-					var selectedCities;
+					//console.log("value: " + sliderData.value); // gives slider's value
+					//console.log("id: " + sliderData.id); // gives slider's id
+					// values to filter against
+
+					//var selectedCities;
+					/*
 					if (sliderData.id == "priceSlider") {
-						selectedCities = cities.filter(function(d) {
-							return d.avgPrice < sliderData.value;
-						})
-						console.log(selectedCities);
-					};
+						sliderPrice = sliderData.value;
+					} else if (sliderData.id == "minNightsSlider") {
+						sliderMinNights = sliderData.value;
+					} else if (sliderData.id == "availabilitySlider") {
+						sliderAvailability = sliderData.value;
+					}
+					*/
+
+
+					console.log("slider:" + sliderData.value);
+					var selectedCities = cities.filter(function(d) {
+						return ((d.avgPrice < sliderPrice) && (d.avgMinNights < sliderMinNights) && (d.avgAvailability < sliderAvailability));
+					});
+
+					console.log(selectedCities);
 					svg1.selectAll("circle").remove();
 
 					selectedCities.forEach(function(city) {
@@ -309,25 +334,23 @@
 									.text(city.name + " # of listings" + city.variable.length + " avg. price" + city.avgPrice);
 							})
 							.on("click", function() {
-								console.log("clicked a thing");
-								var paths = svg1.selectAll("path").data(states.features);
+								showCitiesInfo(selectedCities);
 							});
 
 					});
 
-
-
-
-
 				}
 
-				//******Handle clicking************
-			});
+				function showCitiesInfo(cities) {
+					// city is an object from the cities array
 
-		/********Slider*********/
+					//TODO
+				}
+
+			});
 	</script>
 
-	<div id="sliders">Price: <input type="range" id="priceSlider" min="0" max="200"></div>
+
 
 </body>
 
