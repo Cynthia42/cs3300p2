@@ -6,26 +6,8 @@
 	<title>Project 2 Title</title>
 
 	<style>
-		svg {
-			//border: solid #ccc 1px;
-		}
-
-		svg.hoverCity {
-			border: solid #ccc 1px;
-			//float: left;
-			//clear: both;
-		}
-
-		path.state {
-			fill: #ccc;
-			stroke: #888;
-		}
-
-		circle {
-			fill-opacity: .5;
-			fill: red;
-			stroke: #fff;
-			stroke-width: .5px;
+		div.cityDiv {
+			text-align: center;
 		}
 	</style>
 
@@ -193,12 +175,18 @@
 
 				// scales
 				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
+				var invertedScale = d3.scaleSqrt().domain([0, 10]).range([0, rawBoston.length]);
 
-				var priceScale = d3.scaleLinear().domain([price_slider.min, price_slider.max]).range([100, 365]);
+				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 7);
+				svg1.append("text").attr("x", 48).attr("y", 52).text("3").style("font-size", 8);
 
-				var availabilityScale = d3.scaleLinear().domain([availability_slider.min, availability_slider.max]).range([0, 100]);
+				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 19.5);
+				svg1.append("text").attr("x", 48).attr("y", 42).text("5").style("font-size", 8);
 
-				var minNightsScale = d3.scaleLinear().domain([min_nights_slider.min, min_nights_slider.max]).range([0, 100]);
+				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 38);
+				svg1.append("text").attr("x", 48).attr("y", 32).text("7").style("font-size", 8);
+
+				svg1.append("text").attr("x", 100).attr("y", 32).text("Number of listings in thousands").style("font-size", 16);
 
 				// draw the scales beneath the sliders
 				//svgContainer3.append("g").attr("transform", "translate(0," + String(height - padding) + ")").call(d3.axisBottom(xScale));
@@ -356,6 +344,7 @@
 
 				selectedCities.forEach(function(city) {
 					svg1.append("circle")
+						.attr("class", "mapCircles")
 						.attr("r", circleScale(city.variable.length))
 						.attr("cx", USAprojection([city.longitude, city.latitude])[0])
 						.attr("cy", USAprojection([city.longitude, city.latitude])[1])
@@ -381,8 +370,8 @@
 								clickedCities.splice(clickedCities.indexOf(city), 1);
 							}
 
-							console.log(clickedCities);
-							showCitiesInfo(selectedCities);
+							//console.log("clicked cities:" + clickedCities);
+							showCitiesInfo(clickedCities);
 							//var paths = svg1.selectAll("path").data(states.features);
 
 						});
@@ -469,18 +458,19 @@
 					document.getElementById("priceValue").innerHTML = price_slider.value;
 
 					//console.log("slider:" + sliderData.value);
-					console.log("price:" + sliderPrice);
-					console.log("nights:" + sliderMinNights);
-					console.log("availability:" + sliderAvailability);
+					//console.log("price:" + sliderPrice);
+					//console.log("nights:" + sliderMinNights);
+					//console.log("availability:" + sliderAvailability);
 					var selectedCities = cities.filter(function(d) {
 						return ((d.avgPrice < sliderPrice) && (d.avgMinNights < sliderMinNights) && (d.avgAvailability < sliderAvailability));
 					});
 
-					console.log(selectedCities);
-					svg1.selectAll("circle").remove();
+					//console.log(selectedCities);
+					svg1.selectAll("circle.mapCircles").remove();
 
 					selectedCities.forEach(function(city) {
 						svg1.append("circle")
+							.attr("class", "mapCircles")
 							.attr("r", circleScale(city.variable.length))
 							.attr("cx", USAprojection([city.longitude, city.latitude])[0])
 							.attr("cy", USAprojection([city.longitude, city.latitude])[1])
@@ -489,7 +479,6 @@
 								hoverOnCity(city);
 							})
 							.on("mouseout", function() {
-								svg1.selectAll("rect").remove();
 								svg1.select("#CityInfo").style("opacity", 0);
 								document.getElementById("cityName").innerHTML = "City: ";
 								document.getElementById("cityAvgPrice").innerHTML = "Average airBNB Price: ";
@@ -507,7 +496,7 @@
 								}
 
 								console.log(clickedCities);
-								showCitiesInfo(selectedCities);
+								showCitiesInfo(clickedCities);
 								//var paths = svg1.selectAll("path").data(states.features);
 
 							});
@@ -518,6 +507,12 @@
 
 				function showCitiesInfo(cities) {
 					// city is an object from the cities array
+					if (cities.length == 1) {
+						// show line graph
+						console.log("one city clicked");
+					} else {
+						console.log("many cities clicked");
+					}
 
 					//TODO
 				}

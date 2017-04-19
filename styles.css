@@ -1,85 +1,87 @@
-        @import url('https://fonts.googleapis.com/css?family=Fjalla+One');
-    @import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
-    h1 {
-        text-align: center;
-        font-size: 50px;
-        font-family: "Fjalla One";
-        font-weight: bolder;
-        margin-top: 75px;
-    }
+  @import url('https://fonts.googleapis.com/css?family=Fjalla+One');
+  @import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
+  h1 {
+      text-align: center;
+      font-size: 50px;
+      font-family: "Fjalla One";
+      font-weight: bolder;
+      margin-top: 75px;
+  }
 
-    h2 {
-        text-align: center;
-        font-size: 20px;
-        font-family: 'Roboto Slab';
-        font-weight: 100;
-        margin-bottom: 50px;
-        color: salmon;
-    }
+  h2 {
+      text-align: center;
+      font-size: 20px;
+      font-family: 'Roboto Slab';
+      font-weight: 100;
+      margin-bottom: 50px;
+      color: salmon;
+  }
 
-    #sliders {
-        position: absolute;
-        top: 375px;
-        left: 850px;
-        right: 50px;
-        font-family: 'Roboto Slab';
-        font-weight: 100;
-        color: gray;
-        text-align: center;
-        font-size: 20px;
-        font-family: 'Roboto Slab';
-        font-weight: 100;
-        margin-bottom: 50px;
-    }
+  path.state {
+      fill: #ccc;
+      stroke: #888;
+  }
 
-    svg {
-        border: solid #ccc 1px;
-    }
+  #sliders {
+      position: absolute;
+      top: 375px;
+      left: 850px;
+      right: 50px;
+      font-family: 'Roboto Slab';
+      font-weight: 100;
+      color: gray;
+      text-align: center;
+      font-size: 20px;
+      font-family: 'Roboto Slab';
+      font-weight: 100;
+      margin-bottom: 50px;
+  }
 
-    #sliders {
-        position: absolute;
-        top: 350px;
-        left: 850px;
-        font-family: 'Roboto Slab';
-        font-weight: 100;
-        color: gray;
-        path.state {
-            fill: #ccc;
-            stroke: #888;
-        }
-        circle {
-            fill-opacity: .5;
-            fill: red;
-            stroke: #fff;
-            stroke-width: .5px;
-            >>>>>>>Stashed changes
-        }
-        #availabilitySlider, #minNightsSlider, #priceSlider {
-            margin-bottom: 40px;
-            margin-right: 50px;
-        }
-        #priceSlider {
-            margin-right: 50px;
-            text-align: right;
-        }
-        #airbnb {
-            display: inline;
-            position: absolute;
-            top: 165px;
-            left: 350px;
-            z-index: -1;
-            opacity: 0.2;
-        }
-        #hotelicon {
-            display: inline;
-            position: absolute;
-            top: 165px;
-            right: 350px;
-            z-index: -1;
-            opacity: 0.25;
-        }
-        .credits {
-            font-size: 10px;
-            font-family: 'Roboto Slab';
-            display: inline;
-        }
+  svg {
+      border: solid #ccc 1px;
+  }
+
+  #availabilitySlider, #minNightsSlider, #priceSlider {
+      margin-bottom: 40px;
+      margin-right: 50px;
+  }
+
+  #priceSlider {
+      margin-right: 50px;
+      text-align: right;
+  }
+
+  #airbnb {
+      display: inline;
+      position: absolute;
+      top: 165px;
+      left: 350px;
+      z-index: -1;
+      opacity: 0.2;
+  }
+
+  #hotelicon {
+      display: inline;
+      position: absolute;
+      top: 165px;
+      right: 350px;
+      z-index: -1;
+      opacity: 0.25;
+  }
+
+  .credits {
+      font-size: 10px;
+      font-family: 'Roboto Slab';
+      display: inline;
+  }
+
+  circle {
+      stroke: black
+  }
+
+  circle.mapCircles {
+      fill-opacity: .5;
+      fill: red;
+      stroke: #fff;
+      stroke-width: .5px;
+  }
