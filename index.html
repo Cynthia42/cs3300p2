@@ -44,6 +44,13 @@
 
 	<h1>AIRBNB vs. HOTELS IN MAJOR U.S. CITIES</h1>
 	<h2>by Edwin Ma, Michelle Yang, Cynthia Zhu</h2>
+	<div id="cityDiv">
+		<p id="cityName">City:</p>
+		<p id="cityAvgPrice">Average airBNB Price:</p>
+		<p id="cityAvgHotelPrice">Average hotel Price:</p>
+		<p id="cityAvgMinNights">Average minimum number of nights:</p>
+		<p id="cityAvgAvailableNights">Average available days out of year:</p>
+	</div>
 	<div id="sliders">Nights Available out of Year: <input type="range" id="availabilitySlider" min="200" max="365">
 		<p id="availabilityValue"></p><br>Minimum Nights for AirBNB: <input type="range" id="minNightsSlider" min="0" max="8">
 		<p id="minNightsValue"></p><br>Price:
@@ -359,6 +366,11 @@
 						.on("mouseout", function() {
 							svg1.selectAll("rect").remove();
 							svg1.select("#CityInfo").style("opacity", 0);
+							document.getElementById("cityName").innerHTML = "City: ";
+							document.getElementById("cityAvgPrice").innerHTML = "Average airBNB Price: ";
+							document.getElementById("cityAvgHotelPrice").innerHTML = "Average hotel Price: ";
+							document.getElementById("cityAvgMinNights").innerHTML = "Average minimum number of nights: ";
+							document.getElementById("cityAvgAvailableNights").innerHTML = "Average available days out of year: ";
 						})
 						.on("click", function() {
 							if (clickedCities.indexOf(city) == -1) {
@@ -390,6 +402,12 @@
 					if (timesGreater == 0) {
 						string = "No hotel prices data for " + city.name;
 					}
+
+					document.getElementById("cityName").innerHTML += city.name;
+					document.getElementById("cityAvgPrice").innerHTML += city.avgPrice;
+					document.getElementById("cityAvgHotelPrice").innerHTML += city.avgHotelPrice;
+					document.getElementById("cityAvgMinNights").innerHTML += city.avgMinNights;
+					document.getElementById("cityAvgAvailableNights").innerHTML += city.avgAvailability;
 
 					if (USAprojection([city.longitude, city.latitude])[0] < width / 2) { // if on left
 
@@ -473,6 +491,11 @@
 							.on("mouseout", function() {
 								svg1.selectAll("rect").remove();
 								svg1.select("#CityInfo").style("opacity", 0);
+								document.getElementById("cityName").innerHTML = "City: ";
+								document.getElementById("cityAvgPrice").innerHTML = "Average airBNB Price: ";
+								document.getElementById("cityAvgHotelPrice").innerHTML = "Average hotel Price: ";
+								document.getElementById("cityAvgMinNights").innerHTML = "Average minimum number of nights: ";
+								document.getElementById("cityAvgAvailableNights").innerHTML = "Average available days out of year: ";
 							})
 							.on("click", function() {
 								if (clickedCities.indexOf(city) == -1) {
