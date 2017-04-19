@@ -26,10 +26,50 @@ svg {
 
 #sliders {
 	position: absolute;
-	top: 375px;
+	top: 350px;
 	left: 850px;
-	right: 50px;
 	font-family: 'Roboto Slab';
 	font-weight: 100;
 	color: gray;
 }
+
+#availabilitySlider, 
+#minNightsSlider,
+#priceSlider {
+	margin-bottom: 40px;
+	margin-right: 50px;
+}
+
+#priceSlider {
+	margin-right: 50px;
+	text-align: right;
+}
+
+#airbnb {
+	display: inline;
+	position: absolute;
+	top: 165px;
+	left: 350px;
+	z-index: -1;
+	opacity: 0.2;
+}
+
+#hotelicon {
+	display: inline;
+	position: absolute;
+	top: 165px;
+	right: 350px;
+	z-index: -1;
+	opacity: 0.25;
+}
+
+.credits {
+	font-size: 10px;
+	font-family: 'Roboto Slab';
+	display: inline;
+}
+
+
+
+
+
