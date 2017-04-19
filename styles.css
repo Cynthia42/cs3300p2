@@ -16,6 +16,20 @@ h2 {
 	font-family: 'Roboto Slab';
 	font-weight: 100;
 	margin-bottom: 50px;
-	color: gray;
+	color: salmon;
 
+}
+
+svg {
+	/**border: solid #ccc 1px;**/
+}
+
+#sliders {
+	position: absolute;
+	top: 375px;
+	left: 850px;
+	right: 50px;
+	font-family: 'Roboto Slab';
+	font-weight: 100;
+	color: gray;
 }
