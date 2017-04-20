@@ -6,9 +6,7 @@
 	<title>Project 2 Title</title>
 
 	<style>
-		div.cityDiv {
-			text-align: center;
-		}
+
 	</style>
 
 
@@ -188,14 +186,14 @@
 				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
 				var invertedScale = d3.scaleSqrt().domain([0, 10]).range([0, rawBoston.length]);
 
-				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 7);
+				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 50).attr("cy", 50).attr("r", 7);
 				svg1.append("text").attr("x", 48).attr("y", 52).text("3").style("font-size", 8);
 
-				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 19.5);
-				svg1.append("text").attr("x", 48).attr("y", 42).text("5").style("font-size", 8);
+				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 50).attr("cy", 50).attr("r", 19.5);
+				svg1.append("text").attr("x", 48).attr("y", 40).text("5").style("font-size", 8);
 
-				svg1.append("circle").attr("cx", 50).attr("cy", 50).attr("r", 38);
-				svg1.append("text").attr("x", 48).attr("y", 32).text("7").style("font-size", 8);
+				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 50).attr("cy", 50).attr("r", 38);
+				svg1.append("text").attr("x", 48).attr("y", 28).text("7").style("font-size", 8);
 
 				svg1.append("text").attr("x", 100).attr("y", 32).text("Number of listings in thousands").style("font-size", 16);
 
@@ -674,5 +672,8 @@
 </body>
 
 </html>
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes

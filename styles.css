@@ -92,8 +92,9 @@
       display: inline;
   }
 
-  circle {
-      stroke: black
+  circle.scaleCircles {
+      stroke: red;
+      fill: none;
   }
 
   circle.mapCircles {
