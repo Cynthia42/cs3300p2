@@ -26,21 +26,23 @@
 
 	<h1>AIRBNB vs. HOTELS IN MAJOR U.S. CITIES</h1>
 	<h2>by Edwin Ma, Michelle Yang, Cynthia Zhu</h2>
+
+	<p id="maptitle">Number of AirBnB Listings Across the U.S.</p>
 	<div id="cityDiv">
 		<p id="cityName">City:</p>
-		<p id="cityAvgPrice">Average airBNB Price:</p>
+		<p id="cityAvgPrice">Average AirBnB Price:</p>
 		<p id="cityAvgHotelPrice">Average hotel Price:</p>
 		<p id="cityAvgMinNights">Average minimum number of nights:</p>
 		<p id="cityAvgAvailableNights">Average available days out of year:</p>
 	</div>
 	<form id="frequencyOption" action="">
-		<input type="radio" value="price" name="frequencyOption" checked> Price<br>
-		<input type="radio" value="minimum_nights" name="frequencyOption"> Minimum Nights<br>
-		<input type="radio" value="availability_365" name="frequencyOption"> Availability
+		<input id="priceOption" type="radio" value="price" name="frequencyOption" checked> Price<br>
+		<input id="minNightsOption" type="radio" value="minimum_nights" name="frequencyOption"> Minimum Nights<br>
+		<input id="availOption" type="radio" value="availability_365" name="frequencyOption"> Availability
   	</form>
-	<div id="sliders">Nights Available out of Year: <input type="range" id="availabilitySlider" min="200" max="365">
+	<div id="sliders">Nights Available out of a Year: <input type="range" id="availabilitySlider" min="200" max="365">
 		<p id="availabilityValue"></p><br>Minimum Nights for AirBNB: <input type="range" id="minNightsSlider" min="0" max="8">
-		<p id="minNightsValue"></p><br>Price:
+		<p id="minNightsValue"></p><br>Price: 
 		<input type="range" id="priceSlider" min="0" max="200">
 		<p id="priceValue"></p>
 	</div>
