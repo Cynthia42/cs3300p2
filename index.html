@@ -346,18 +346,162 @@
 
 				}
 
+
+// 			var svg = d3.select("svg");
+// svg.append("text")
+// .attr("id", "SectorName")
+// .attr("x", 10)
+// .attr("y", 28)
+// .style("font-size", "18pt");
+
+// var dateScale = d3.scaleTime().domain([new Date("1990-01-01"), new Date("2016-12-01")]).range([0, 350]);
+// var dateAxis = d3.axisBottom(dateScale);
+// var employmentScale = d3.scaleLinear().domain([0,2300]).range([350, 0]);
+// var employmentAxis = d3.axisLeft(employmentScale);
+
+// var sectorScale = d3.scaleOrdinal(d3.schemeCategory20);
+
+// var plot = svg.append("g").attr("transform", "translate(40,30)");
+// plot.append("g").call(dateAxis).attr("transform", "translate(0,350)");
+// plot.append("g").call(employmentAxis).attr("transform", "translate(0,0)");
+
+// var pathGenerator = d3.line()
+// .x(function (d) { return dateScale(d.Date); })
+// .y(function (d) { return employmentScale(d.Employment); });
+
+			// row.price = Number(row.price);
+			// row.minimum_nights = Number(row.minimum_nights);
+			// row.availability_365 = Number(row.availability_365);
+
 				function showCitiesInfo(cities) {
-					d3.select("svg:nth-child(2)")
-					.append()
+					var cityPriceFrequencyData = getCityAttrFrequencyData(cities, "price");
+					var cityMaxPrice = getCityMaxOfAttr(cities, "price");
+					var cityMinPrice = getCityMinOfAttr(cities, "price");
 
-					cities[0].name;
-					cities[0].price;
-					cities[0].minimum_nights;
-					cities[0].availability_365;
+					var frequencyScale = d3.scaleLinear()
+					.domain([0, 100])
+					.range([350, 0]);
+					var frequencyAxis = d3.axisLeft(frequencyScale);
+					
+					var priceScale = d3.scaleLinear()
+					.domain([cityMinPrice, cityMaxPrice])
+					.range([0, 350]);
+
+					var priceAxis = d3.axisBottom(priceScale);
+
+					var svg = d3.select("svg:nth-child(2)");
+					svg.append("text")
+					.attr("id", "CityName")
+					.attr("x", 10)
+					.attr("y", 28)
+					.style("font-size", "18pt");
+
+					var plot = svg.append("g")
+					.attr("transform", "translate(40,30)");
+
+					plot.append("g")
+					.call(priceAxis)
+					.attr("transform", "translate(0,350)");
+
+					plot.append("g")
+					.call(frequencyAxis)
+					.attr("transform", "translate(0,0)");
+					
+					var pricePathGenerator = d3.line()
+					.x(function (d) { return priceScale(d["price"])})
+					.y(function (d) { return frequencyScale(d["frequency"])});
+
+					var paths = plot.selectAll("path.lineGraph").data(cityPriceFrequencyData);
+					paths.enter()
+					.append("path")
+					.merge(paths)
+					.on("mouseover", function (d) {
+						svg.select("#CityName").text(d["city"]);
+					})
+					.attr("class", "lineGraph")
+					.attr("d", function(city) {
+						console.log(city["attrFrequencyData"]);
+						return pricePathGenerator(city["attrFrequencyData"]);
+					})
 
 
+					pricePathGenerator
+
+					// cities[0].name
+					// cities[0].price
+					// cities[0].minimum_nights
+					// cities[0].availability_365
+					// cities[0].variable
 
 				}
+
+
+				function getCityMinOfAttr(cities, attr) {
+					var cityMinOfAttr = cities[0]["variable"][0][attr];
+					console.log(cityMinOfAttr);
+					cities.forEach(function(city) {
+						city.variable.forEach(function(cityEntry) {
+							var cityEntryAttr = cityEntry[attr];
+							if (cityEntryAttr != undefined) {
+								cityMinOfAttr = Math.min(cityEntryAttr, cityMinOfAttr);	
+							}
+						});
+					});
+					return cityMinOfAttr;
+				}
+
+
+				function getCityMaxOfAttr(cities, attr) {
+					var cityMaxOfAttr = cities[0]["variable"][0][attr];
+					cities.forEach(function(city) {
+						city.variable.forEach(function(cityEntry) {
+							var cityEntryAttr = cityEntry[attr];
+							if (cityEntryAttr != undefined) {
+								cityMaxOfAttr = Math.max(cityEntryAttr, cityMaxOfAttr);
+							}
+						});
+					});
+					return cityMaxOfAttr;
+				}
+
+
+				function getCityAttrFrequencyData(cities, attr) {
+					var cityAttrFrequencyData = [];
+
+					cities.forEach(function(city) {
+						var individualCityAttrFrequencyData = 
+							{"city": city.name, "attrFrequencyData": []};
+
+						var attrFrequencyDataDict = {};
+						city.variable.forEach(function(cityEntry) {
+							var cityEntryAttr = cityEntry[attr];
+							if (cityEntryAttr != undefined) {
+								if (attrFrequencyDataDict.hasOwnProperty(cityEntryAttr)) {
+								attrFrequencyDataDict[cityEntryAttr] += 1;
+								} else {
+									attrFrequencyDataDict[cityEntryAttr] = 1;
+								}	
+							}
+						});
+						var attrFrequencyDataArray = [];
+						for (var key in attrFrequencyDataDict) {
+							if (attrFrequencyDataDict.hasOwnProperty(key)) {
+								var attrObject = 
+									{attr: key, "frequency": attrFrequencyDataDict[key]};
+								attrFrequencyDataArray.push(attrObject);
+							}
+						}
+
+						individualCityAttrFrequencyData["attrFrequencyData"] = 
+							attrFrequencyDataArray;
+
+						cityAttrFrequencyData.push(individualCityAttrFrequencyData)
+
+					});
+					return cityAttrFrequencyData;
+				}
+
+
 
 			});
 	</script>
