@@ -206,7 +206,7 @@
 				attr("id", "CityInfo").
 				//style("text-anchor", "middle").
 				style("font-size", "1em").
-				style("fill", "blue");
+				style("fill", "black");
 
 				// cities array
 				cities = [{
@@ -409,10 +409,10 @@
 					}
 
 					document.getElementById("cityName").innerHTML += city.name;
-					document.getElementById("cityAvgPrice").innerHTML += city.avgPrice;
-					document.getElementById("cityAvgHotelPrice").innerHTML += city.avgHotelPrice;
-					document.getElementById("cityAvgMinNights").innerHTML += city.avgMinNights;
-					document.getElementById("cityAvgAvailableNights").innerHTML += city.avgAvailability;
+					document.getElementById("cityAvgPrice").innerHTML += Math.round(city.avgPrice);
+					document.getElementById("cityAvgHotelPrice").innerHTML += Math.round(city.avgHotelPrice);
+					document.getElementById("cityAvgMinNights").innerHTML += Math.round(city.avgMinNights);
+					document.getElementById("cityAvgAvailableNights").innerHTML += Math.round(city.avgAvailability);
 
 					if (USAprojection([city.longitude, city.latitude])[0] < width / 2) { // if on left
 
@@ -672,8 +672,3 @@
 </body>
 
 </html>
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes
