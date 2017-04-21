@@ -1,132 +1,132 @@
   @import url('https://fonts.googleapis.com/css?family=Fjalla+One');
   @import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
-
   h1 {
-      text-align: center;
-      font-size: 50px;
-      font-family: "Fjalla One";
-      font-weight: bolder;
-      margin-top: 75px;
+    text-align: center;
+    font-size: 50px;
+    font-family: "Fjalla One";
+    font-weight: bolder;
+    margin-top: 75px;
   }
 
   h2 {
-      text-align: center;
-      font-size: 20px;
-      font-family: 'Roboto Slab';
-      font-weight: 100;
-      margin-bottom: 100px;
-      color: salmon;
+    text-align: center;
+    font-size: 20px;
+    font-family: 'Roboto Slab';
+    font-weight: 100;
+    margin-bottom: 100px;
+    color: salmon;
   }
 
   #maptitle {
-      text-align: center;
-      font-size: 35px;
-      font-family: "Fjalla One";
-      font-weight: normal;
-      margin-bottom: 25px;
+    text-align: center;
+    font-size: 35px;
+    font-family: "Fjalla One";
+    font-weight: normal;
+    margin-bottom: 25px;
   }
 
   path.state {
-      fill: #ccc;
-      stroke: #888;
+    fill: #ccc;
+    stroke: #888;
   }
 
   #sliders {
-      position: absolute;
-      top: 385px;
-      left: 875px;
-      right: 25px;
-      font-family: 'Roboto Slab';
-      font-weight: 100;
-      color: salmon;
-      text-align: center;
-      font-size: 15px;
-      font-family: 'Roboto Slab';
-      font-weight: 100;
-      margin-bottom: 25px;
+    position: absolute;
+    top: 385px;
+    left: 875px;
+    right: 25px;
+    font-family: 'Roboto Slab';
+    font-weight: 100;
+    color: salmon;
+    text-align: center;
+    font-size: 15px;
+    font-family: 'Roboto Slab';
+    font-weight: 100;
+    margin-bottom: 25px;
   }
 
   svg {
-      /**border: solid #ccc 1px;**/
-      margin-bottom: 50px;
-      margin-left: 25px;
+    /**border: solid #ccc 1px;**/
+    margin-bottom: 50px;
+    margin-left: 25px;
   }
 
   svg text {
-      font-family: "Roboto Slab";
-      font-weight: 100;
+    font-family: "Roboto Slab";
+    font-weight: 100;
   }
 
   #availabilitySlider, #minNightsSlider, #priceSlider {
-      margin-bottom: 10px;
-      margin-right: 25px;
-      float: right;
+    margin-bottom: 10px;
+    margin-right: 25px;
+    float: right;
   }
 
   #priceSlider {
-      position: absolute;
-      right: 0px;
+    position: absolute;
+    right: 0px;
   }
 
   #airbnb {
-      display: inline;
-      position: absolute;
-      top: 165px;
-      left: 350px;
-      z-index: -1;
-      opacity: 0.2;
+    display: inline;
+    position: absolute;
+    top: 165px;
+    left: 350px;
+    z-index: -1;
+    opacity: 0.2;
   }
 
   #hotelicon {
-      display: inline;
-      position: absolute;
-      top: 165px;
-      right: 350px;
-      z-index: -1;
-      opacity: 0.25;
+    display: inline;
+    position: absolute;
+    top: 165px;
+    right: 350px;
+    z-index: -1;
+    opacity: 0.25;
   }
 
   .credits {
-      font-size: 10px;
-      font-family: 'Roboto Slab';
-      display: inline;
+    font-size: 10px;
+    font-family: 'Roboto Slab';
+    display: inline;
   }
 
   circle.scaleCircles {
-      stroke: red;
-      fill: none;
+    stroke: red;
+    fill: none;
   }
 
   circle.mapCircles {
-      fill-opacity: .5;
-      fill: red;
-      stroke: #fff;
-      stroke-width: .5px;
+    fill-opacity: .5;
+    fill: red;
+    stroke: #fff;
+    stroke-width: .5px;
   }
 
-  #cityDiv {
-      position: absolute;
-      top: 700px;
-      left: 875px;
-      font-family: "Roboto Slab";
-      color: gray;
+  circle.clickedCircles {
+    fill-opacity: .5;
+    fill: #800020;
+    stroke: #fff;
+    stroke-width: .5px;
+  }
 
+  circles. #cityDiv {
+    position: absolute;
+    top: 700px;
+    left: 875px;
+    font-family: "Roboto Slab";
+    color: gray;
   }
 
   #frequencyOption {
-      position: absolute;
-      top: 1075px;
-      left: 875px;
-      font-family: 'Roboto Slab';
-      font-weight: 100;
-      color: gray;
+    position: absolute;
+    top: 1075px;
+    left: 875px;
+    font-family: 'Roboto Slab';
+    font-weight: 100;
+    color: gray;
   }
 
-  #priceOption,
-  #minNightsOption,
-  #availOption {
-      margin-bottom: 50px;
+  #priceOption, #minNightsOption, #availOption {
+    margin-bottom: 50px;
   }
-
-
-

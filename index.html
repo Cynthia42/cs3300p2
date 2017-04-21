@@ -25,6 +25,8 @@
 	<h1>AIRBNB vs. HOTELS IN MAJOR U.S. CITIES</h1>
 	<h2>by Edwin Ma, Michelle Yang, Cynthia Zhu</h2>
 
+	<p id="help"> Please click on one or more cities above to show linear regressions of airBNB data below.</p>
+
 	<p id="maptitle">Number of AirBnB Listings Across the U.S.</p>
 	<div id="cityDiv">
 		<p id="cityName">City:</p>
@@ -37,10 +39,11 @@
 		<input id="priceOption" type="radio" value="price" name="frequencyOption" checked> Price<br>
 		<input id="minNightsOption" type="radio" value="minimum_nights" name="frequencyOption"> Minimum Nights<br>
 		<input id="availOption" type="radio" value="availability_365" name="frequencyOption"> Availability
-  	</form>
-	<div id="sliders">Nights Available out of a Year: <input type="range" id="availabilitySlider" min="200" max="365">
+	</form>
+	<div id="sliders">Nights Available out of a Year:
+		<input type="range" id="availabilitySlider" min="200" max="365">
 		<p id="availabilityValue"></p><br>Minimum Nights for AirBNB: <input type="range" id="minNightsSlider" min="0" max="8">
-		<p id="minNightsValue"></p><br>Price: 
+		<p id="minNightsValue"></p><br>Price:
 		<input type="range" id="priceSlider" min="0" max="200">
 		<p id="priceValue"></p>
 	</div>
@@ -49,8 +52,6 @@
 	<p id="p1"></p>
 
 	<script>
-
-
 		var width = 800;
 		var height = 600;
 
@@ -86,9 +87,9 @@
 		var min_nights_slider = document.getElementById("minNightsSlider");
 
 		// show slider values
-		document.getElementById("availabilityValue").innerHTML = availability_slider.value;
-		document.getElementById("minNightsValue").innerHTML = min_nights_slider.value;
-		document.getElementById("priceValue").innerHTML = price_slider.value;
+		document.getElementById("availabilityValue").innerHTML = availability_slider.value + " Nights";
+		document.getElementById("minNightsValue").innerHTML = min_nights_slider.value + " Nights";
+		document.getElementById("priceValue").innerHTML = "$" + price_slider.value;
 
 
 		// for parsing airBNB data
@@ -374,10 +375,14 @@
 							if (clickedCities.indexOf(city) == -1) {
 								// add to array if city doesn't already exist
 								clickedCities.push(city);
+								// add class for clicked on
+								d3.select(this).attr("class", "clickedCircles");
 							} else {
 								// remove city from array if it already exists
 								clickedCities.splice(clickedCities.indexOf(city), 1);
+								d3.select(this).attr("class", "mapCircles");
 							}
+
 
 							//console.log("clicked cities:" + clickedCities);
 							showCitiesInfo(clickedCities);
@@ -388,10 +393,16 @@
 
 				});
 
+				// making the circles darken
+				// d3.selectAll(".mapCircles")
+				// 	.each(function(d) {
+				// 		console.log(d);
+				// 	});
+
 				d3.selectAll('input[name = "frequencyOption"]')
-				.on("click", function() {
-					showCitiesInfo(clickedCities);
-				});
+					.on("click", function() {
+						showCitiesInfo(clickedCities);
+					});
 				showCitiesInfo(clickedCities);
 
 				// for hovering on city
@@ -442,23 +453,7 @@
 					}
 				}
 
-				/*
-				var circles = svg1.selectAll("circle").data(cities);
 
-				circles.enter().append("circle")
-					.attr("r", circleScale(city.variable.length))
-					.attr("cx", USAprojection([city.longitude, city.latitude])[0])
-					.attr("cy", USAprojection([city.longitude, city.latitude])[1])
-					.on("mouseover", function() {
-						svg1.select("#CityInfo").attr("x", USAprojection([city.longitude, city.latitude])[0] - 15)
-							.attr("y", USAprojection([city.longitude, city.latitude])[1] - 50)
-							.text(city.name + " # of listings" + city.variable.length + " avg. price" + city.avgPrice);
-					}).on("click", function() {
-						console.log(city.name);
-						var paths = svg1.selectAll("path").data(states.features);
-					});
-
-					*/
 
 
 
@@ -469,9 +464,9 @@
 					//console.log("value: " + sliderData.value); // gives slider's value
 					//console.log("id: " + sliderData.id); // gives slider's id
 					// values to filter against
-					document.getElementById("availabilityValue").innerHTML = availability_slider.value;
-					document.getElementById("minNightsValue").innerHTML = min_nights_slider.value;
-					document.getElementById("priceValue").innerHTML = price_slider.value;
+					document.getElementById("availabilityValue").innerHTML = availability_slider.value + " Nights";
+					document.getElementById("minNightsValue").innerHTML = min_nights_slider.value + " Nights";
+					document.getElementById("priceValue").innerHTML = "$" + price_slider.value;
 
 					//console.log("slider:" + sliderData.value);
 					//console.log("price:" + sliderPrice);
@@ -482,10 +477,14 @@
 					});
 
 					//console.log(selectedCities);
-					svg1.selectAll("circle.mapCircles").remove();
+					svg1.selectAll("circle.mapCircles").attr("visibility", "hidden");
+					svg1.selectAll("circle.clickedCircles").attr("visibility", "hidden");
+
+					showCitiesInfo(clickedCities);
 
 					selectedCities.forEach(function(city) {
 						svg1.append("circle")
+							.attr("visibility", "visible")
 							.attr("class", "mapCircles")
 							.attr("r", circleScale(city.variable.length))
 							.attr("cx", USAprojection([city.longitude, city.latitude])[0])
@@ -506,9 +505,11 @@
 								if (clickedCities.indexOf(city) == -1) {
 									// add to array if city doesn't already exist
 									clickedCities.push(city);
+									d3.select(this).attr("class", "clickedCircles");
 								} else {
 									// remove city from array if it already exists
 									clickedCities.splice(clickedCities.indexOf(city), 1);
+									d3.select(this).attr("class", "mapCircles");
 								}
 
 								showCitiesInfo(clickedCities);
@@ -520,111 +521,121 @@
 
 				}
 
-                function showCitiesInfo(cities) {
-                    var attrRangesDict = 
-                    	{"price": [0,300], 
-                    	 "minimum_nights": [0, 30], 
-                    	 "availability_365": [0, 365]};
-                    var attrFrequencyRangesDict = 
-                    	{"price": [0,15], 
-                    	 "minimum_nights": [0, 60], 
-                    	 "availability_365": [0, 35]};
-                    var attrStepSizesDict = 
-                    	{"price": 10, 
-                    	 "minimum_nights": 1, 
-                    	 "availability_365": 5};
-                    var attrLabelsDict = 
-                    	{"price": "Price Per Night", 
-                    	 "minimum_nights": "Minimum Nights of Stay", 
-                    	 "availability_365": "Annual Availability"};
+				function showCitiesInfo(cities) {
+					var attrRangesDict = {
+						"price": [0, 300],
+						"minimum_nights": [0, 30],
+						"availability_365": [0, 365]
+					};
+					var attrFrequencyRangesDict = {
+						"price": [0, 15],
+						"minimum_nights": [0, 60],
+						"availability_365": [0, 35]
+					};
+					var attrStepSizesDict = {
+						"price": 10,
+						"minimum_nights": 1,
+						"availability_365": 5
+					};
+					var attrLabelsDict = {
+						"price": "Price Per Night",
+						"minimum_nights": "Minimum Nights of Stay",
+						"availability_365": "Annual Availability"
+					};
 
-                    var attr = document.querySelector('input[name = "frequencyOption"]:checked').value;
-                    var attrRange = attrRangesDict[attr];
-                    var attrFrequencyRange = attrFrequencyRangesDict[attr];
-                    var attrStepSize = attrStepSizesDict[attr];
-                    var attrLabel = attrLabelsDict[attr];
+					var attr = document.querySelector('input[name = "frequencyOption"]:checked').value;
+					var attrRange = attrRangesDict[attr];
+					var attrFrequencyRange = attrFrequencyRangesDict[attr];
+					var attrStepSize = attrStepSizesDict[attr];
+					var attrLabel = attrLabelsDict[attr];
 
-                    var cityAttrFrequencyData = 
-                    	getCityAttrFrequencyData(cities, attr, attrStepSize, attrRange[1]);
-                    console.log(cityAttrFrequencyData);
+					var cityAttrFrequencyData =
+						getCityAttrFrequencyData(cities, attr, attrStepSize, attrRange[1]);
+					console.log(cityAttrFrequencyData);
 
-                    var cityScale = d3.scaleOrdinal(d3.schemeCategory20);
-                    var frequencyScale = d3.scaleLinear()
-                    .domain(attrFrequencyRange)
-                    .range([480, 0]);
-                    var frequencyAxis = d3.axisLeft(frequencyScale);
-                    
-                    var attrScale = d3.scaleLinear()
-                    .domain(attrRange)
-                    .range([0, 700]);
+					var cityScale = d3.scaleOrdinal(d3.schemeCategory20);
+					var frequencyScale = d3.scaleLinear()
+						.domain(attrFrequencyRange)
+						.range([480, 0]);
+					var frequencyAxis = d3.axisLeft(frequencyScale);
 
-                    var attrAxis = d3.axisBottom(attrScale);
-                    var svg = d3.select("svg:nth-child(2)");
-                    svg.selectAll("*").remove();
+					var attrScale = d3.scaleLinear()
+						.domain(attrRange)
+						.range([0, 700]);
 
-                    svg.append("text")
-                    .attr("id", "CityName")
-                    .attr("x", 10)
-                    .attr("y", 28)
-                    .style("font-size", "18pt");
+					var attrAxis = d3.axisBottom(attrScale);
+					var svg = d3.select("svg:nth-child(2)");
+					svg.selectAll("*").remove();
 
-                    svg.append("text")
-                    .attr("id", "CityName")
-                    .attr("x", -300)
-                    .attr("y", 20)
-                    .attr("transform", "rotate(-90)")
-                    .text("Percent Frequency")
-                    .style("text-anchor", "middle")
-                    .style("font-size", "14pt");
+					svg.append("text")
+						.attr("id", "CityName")
+						.attr("x", 10)
+						.attr("y", 28)
+						.style("font-size", "18pt");
 
-                    svg.append("text")
-                    .attr("id", "CityName")
-                    .attr("x", 400)
-                    .attr("y", 580)
-                    .text(attrLabel)
-                    .style("text-anchor", "middle")
-                    .style("font-size", "14pt");
+					svg.append("text")
+						.attr("id", "CityName")
+						.attr("x", -300)
+						.attr("y", 20)
+						.attr("transform", "rotate(-90)")
+						.text("Percent Frequency")
+						.style("text-anchor", "middle")
+						.style("font-size", "14pt");
 
-                    var plot = svg.append("g")
-                    .attr("transform", "translate(50,50)");
+					svg.append("text")
+						.attr("id", "CityName")
+						.attr("x", 400)
+						.attr("y", 580)
+						.text(attrLabel)
+						.style("text-anchor", "middle")
+						.style("font-size", "14pt");
 
-                    plot.append("g")
-                    .call(attrAxis)
-                    .attr("transform", "translate(0,480)");
+					var plot = svg.append("g")
+						.attr("transform", "translate(50,50)");
 
-                    plot.append("g")
-                    .call(frequencyAxis)
-                    .attr("transform", "translate(0,0)");
-                    
-                    var attrPathGenerator = d3.line()
-                    .x(function (d) { return attrScale(d[attr])})
-                    .y(function (d) { return frequencyScale(d["frequency"])});
+					plot.append("g")
+						.call(attrAxis)
+						.attr("transform", "translate(0,480)");
 
-                    var paths = plot.selectAll("path.lineGraph").data(cityAttrFrequencyData);
-                    paths.enter()
-                    .append("path")
-                    .merge(paths)
-                    .on("mouseover", function (d) {
-                        svg.select("#CityName").text(d["city"]);
-                    })
-                    .attr("class", "lineGraph")
-                    .attr("d", function(city) {
-                        return attrPathGenerator(city["attrFrequencyData"]);
-                    })
-                    .attr("style", "fill: none; stroke-width: 2;")
-                    .style("stroke", function(city, i) {
-                        return cityScale(i);
-                    })
-                    .transition()
-                    .duration(1000);
-                }
+					plot.append("g")
+						.call(frequencyAxis)
+						.attr("transform", "translate(0,0)");
+
+					var attrPathGenerator = d3.line()
+						.x(function(d) {
+							return attrScale(d[attr])
+						})
+						.y(function(d) {
+							return frequencyScale(d["frequency"])
+						});
+
+					var paths = plot.selectAll("path.lineGraph").data(cityAttrFrequencyData);
+					paths.enter()
+						.append("path")
+						.merge(paths)
+						.on("mouseover", function(d) {
+							svg.select("#CityName").text(d["city"]);
+						})
+						.attr("class", "lineGraph")
+						.attr("d", function(city) {
+							return attrPathGenerator(city["attrFrequencyData"]);
+						})
+						.attr("style", "fill: none; stroke-width: 2;")
+						.style("stroke", function(city, i) {
+							return cityScale(i);
+						})
+						.transition()
+						.duration(1000);
+				}
 
 				function getCityAttrFrequencyData(cities, attr, attrStepSize, attrMax) {
 					var cityAttrFrequencyData = [];
 
 					cities.forEach(function(city) {
-						var individualCityAttrFrequencyData = 
-							{"city": city.name, "attrFrequencyData": []};
+						var individualCityAttrFrequencyData = {
+							"city": city.name,
+							"attrFrequencyData": []
+						};
 						var aggregateFrequency = 0;
 						var attrFrequencyDataDict = {};
 						city.variable.forEach(function(cityEntry) {
@@ -632,24 +643,26 @@
 							if (cityEntryAttr != undefined && !isNaN(cityEntryAttr)) {
 								if (cityEntryAttr <= attrMax) {
 									aggregateFrequency += 1;
-									cityEntryAttr = Math.floor(cityEntryAttr/attrStepSize) * attrStepSize;
+									cityEntryAttr = Math.floor(cityEntryAttr / attrStepSize) * attrStepSize;
 									if (attrFrequencyDataDict.hasOwnProperty(cityEntryAttr)) {
 										attrFrequencyDataDict[cityEntryAttr] += 1;
 									} else {
 										attrFrequencyDataDict[cityEntryAttr] = 1;
-									}	
-								}	
+									}
+								}
 							}
 						});
 						var attrFrequencyDataArray = [];
 						for (var key in attrFrequencyDataDict) {
 							if (attrFrequencyDataDict.hasOwnProperty(key)) {
-								var attrObject = {"frequency": (attrFrequencyDataDict[key]/aggregateFrequency) * 100};
+								var attrObject = {
+									"frequency": (attrFrequencyDataDict[key] / aggregateFrequency) * 100
+								};
 								attrObject[attr] = key;
 								attrFrequencyDataArray.push(attrObject);
 							}
 						}
-						individualCityAttrFrequencyData["attrFrequencyData"] = 
+						individualCityAttrFrequencyData["attrFrequencyData"] =
 							attrFrequencyDataArray;
 						cityAttrFrequencyData.push(individualCityAttrFrequencyData)
 					});
