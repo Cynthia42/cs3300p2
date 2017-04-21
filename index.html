@@ -139,453 +139,510 @@
 			.defer(d3.csv, "listings_SF.csv", parseRow)
 			.defer(d3.tsv, "hotel2016.txt")
 			.await(function(error, rawMap, rawAustin, rawBoston, rawChicago, rawDC, rawLA, rawNashville, rawNewOrleans, rawNYC, rawPortland, rawSanDiego, rawSeattle, rawSF, rawHotel) {
-				states = topojson.feature(rawMap, rawMap.objects.states);
-				Austin = rawAustin;
-				Boston = rawBoston;
+					states = topojson.feature(rawMap, rawMap.objects.states);
+					Austin = rawAustin;
+					Boston = rawBoston;
 
-				for (var i = 1; i < rawHotel.length; i++) { 
-					for (var prop in rawHotel[i]) {
-						var currentProp = rawHotel[i][prop];
-						currentProp = currentProp.replace(/_/, " ");
-						rawHotel[i][prop] = rawHotel[i][prop].replace(/\$/, "");
-					}
-				}
-				hotels = rawHotel;
-
-
-				USAprojection.fitExtent([
-					[0, 0],
-					[svg1.attr("width"), svg1.attr("height")]
-				], states);
-				pathGenerator = d3.geoPath().projection(USAprojection);
-
-				// draw the map
-				var paths = svg1.selectAll("path").data(states.features);
-				paths.enter().append("path").attr("class", "state")
-					.merge(paths)
-					.attr("d", function(state) {
-						return pathGenerator(state);
-					});
-
-
-
-				// scales
-				var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
-				var invertedScale = d3.scaleSqrt().domain([0, 10]).range([0, rawBoston.length]);
-
-				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 7);
-				svg1.append("text").attr("x", 38).attr("y", 52).text("3").style("font-size", 8);
-
-				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 19.5);
-				svg1.append("text").attr("x", 38).attr("y", 40).text("5").style("font-size", 8);
-
-				svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 38);
-				svg1.append("text").attr("x", 38).attr("y", 28).text("7").style("font-size", 8);
-
-				svg1.append("text").attr("x", 400).attr("y", 20).text("Number of listings in thousands").style("font-size", 16);
-
-				var cityInfo = svg1.append("text").
-				attr("id", "CityInfo").
-				style("font-size", "1em").
-				style("fill", "black");
-
-				// cities array
-				cities = [{
-					name: "Austin",
-					longitude: -97.7431,
-					latitude: 30.2672,
-					variable: rawAustin,
-					avgHotelPrice: null
-				}, {
-					name: "Boston",
-					longitude: -71.0589,
-					latitude: 42.3601,
-					variable: rawBoston
-				}, {
-					name: "Chicago",
-					longitude: -87.6298,
-					latitude: 41.8781,
-					variable: rawChicago
-				}, {
-					name: "Washington D.C.",
-					longitude: -77.0369,
-					latitude: 38.9072,
-					variable: rawDC
-				}, {
-					name: "Los Angeles",
-					longitude: -118.2437,
-					latitude: 34.0522,
-					variable: rawBoston
-				}, {
-					name: "Nashville",
-					longitude: -86.7816,
-					latitude: 36.1627,
-					variable: rawNashville,
-					avgHotelPrice: null
-				}, {
-					name: "New Orleans",
-					longitude: -90.0715,
-					latitude: 29.9511,
-					variable: rawNewOrleans
-				}, {
-					name: "New York",
-					longitude: -74.0059,
-					latitude: 40.7128,
-					variable: rawNYC
-				}, {
-					name: "Portland",
-					longitude: -122.6765,
-					latitude: 45.5231,
-					variable: rawPortland,
-					avgHotelPrice: null
-				}, {
-					name: "San Diego",
-					longitude: -117.1611,
-					latitude: 32.7157,
-					variable: rawSanDiego
-				}, {
-					name: "Seattle",
-					longitude: -122.3321,
-					latitude: 47.6062,
-					variable: rawSeattle
-				}, {
-					name: "San Francisco",
-					longitude: -122.4194,
-					latitude: 37.7749,
-					variable: rawSF
-				}];
-
-				// for regex purposes
-				var re = /room/;
-
-				// adding attributes to cities programmatically
-				for (var i = 0; i < cities.length; i++) {
-					cities[i].avgPrice = d3.mean(cities[i].variable, function(d) {
-						if ((d.room_type).match(re)) {
-							return d.price;
-						}
-					});
-
-					cities[i].avgMinNights = d3.mean(cities[i].variable, function(d) {
-						if ((d.room_type).match(re)) {
-							return d.minimum_nights;
-						}
-					});
-
-					cities[i].avgAvailability = d3.mean(cities[i].variable, function(d) {
-						if ((d.room_type).match(re)) {
-							return d.availability_365;
-						}
-					});
-
-					// add hotel averages
-					for (var j = 0; j < rawHotel.length; j++) {
-						if (rawHotel[j].City == cities[i].name) {
-							// turn city object into array
-							var cityHotelArray = Object.keys(rawHotel[j]).map(function(key) {
-								return rawHotel[j][key];
-							});
-
-							cities[i].avgHotelPrice = d3.mean(cityHotelArray, function(d) {
-								if (d.length == 3) {
-									return parseFloat(d);
-								}
-							})
-							//console.log("city:" + rawHotel[j].City);
+					for (var i = 1; i < rawHotel.length; i++) {
+						for (var prop in rawHotel[i]) {
+							var currentProp = rawHotel[i][prop];
+							currentProp = currentProp.replace(/_/, " ");
+							rawHotel[i][prop] = rawHotel[i][prop].replace(/\$/, "");
 						}
 					}
-				}
+					hotels = rawHotel;
 
-				var sliderPrice = price_slider.max / 2,
-					sliderMinNights = min_nights_slider.max / 2,
-					sliderAvailability = (availability_slider.max + availability_slider.min) / 2;
 
-				var priceSlider = d3.select("#priceSlider");
-				priceSlider.on("input", function() {
-					sliderPrice = this.value;
-					changeCircles();
-				});
+					USAprojection.fitExtent([
+						[0, 0],
+						[svg1.attr("width"), svg1.attr("height")]
+					], states);
+					pathGenerator = d3.geoPath().projection(USAprojection);
 
-				var minNightsSlider = d3.select("#minNightsSlider");
-				minNightsSlider.on("input", function() {
-					sliderMinNights = this.value;
-					changeCircles();
-				});
-
-				var availabilitySlider = d3.select("#availabilitySlider");
-				availabilitySlider.on("input", function() {
-					sliderAvailability = this.value;
-					changeCircles();
-				});
-
-				var selectedCities = cities.filter(function(d) {
-					return ((d.avgPrice < sliderPrice) && (d.avgMinNights < sliderMinNights) && (d.avgAvailability < sliderAvailability));
-				});
-
-				var clickedCities = [];
-
-				cities.forEach(function(city) {
-					svg1.append("circle")
-						.attr("data-name", city.name)
-						.attr("class", "mapCircles")
-						.attr("r", circleScale(city.variable.length))
-						.attr("cx", USAprojection([city.longitude, city.latitude])[0])
-						.attr("cy", USAprojection([city.longitude, city.latitude])[1])
-						.on("mouseover", function() { hoverOnCity(city); })
-						.on("mouseout", function() {
-							svg1.selectAll("rect").remove();
-							svg1.select("#CityInfo").style("opacity", 0);
-							document.getElementById("cityName").innerHTML = "City: ";
-							document.getElementById("cityAvgPrice").innerHTML = "Average Airbnb Price: ";
-							document.getElementById("cityAvgHotelPrice").innerHTML = "Average hotel Price: ";
-							document.getElementById("cityAvgMinNights").innerHTML = "Average minimum number of nights: ";
-							document.getElementById("cityAvgAvailableNights").innerHTML = "Average available days out of year: ";
-						})
-						.on("click", function() {
-							if (clickedCities.indexOf(city) == -1) {
-								clickedCities.push(city);
-								d3.select(this).attr("class", "clickedCircles");
-							} else {
-								clickedCities.splice(clickedCities.indexOf(city), 1);
-								d3.select(this).attr("class", "mapCircles");
-							}
-							showCitiesInfo(clickedCities);
+					// draw the map
+					var paths = svg1.selectAll("path").data(states.features);
+					paths.enter().append("path").attr("class", "state")
+						.merge(paths)
+						.attr("d", function(state) {
+							return pathGenerator(state);
 						});
-				});
-
-				changeCircles();
-
-				d3.selectAll('input[name = "frequencyOption"]')
-					.on("click", function() {
-						showCitiesInfo(clickedCities);
-					});
-				showCitiesInfo(clickedCities);
-
-				// for hovering on city
-				var hoverOnCity = function(city) {
-					// if city is to the left of the svg1
-					var city_x = USAprojection([city.longitude, city.latitude])[0];
-					var city_y = USAprojection([city.longitude, city.latitude])[1];
 
 
-					var timesGreater = city.avgHotelPrice / city.avgPrice;
-					var string = city.name + "'s average hotel price is " + timesGreater.toFixed(2) + " times more expensive than average Airbnb price";
 
-					if (timesGreater == 0) {
-						string = "No hotel prices data for " + city.name;
-					}
+					// scales
+					var circleScale = d3.scaleSqrt().domain([0, rawBoston.length]).range([0, 10]);
+					var invertedScale = d3.scaleSqrt().domain([0, 10]).range([0, rawBoston.length]);
 
-					document.getElementById("cityName").innerHTML += city.name;
-					document.getElementById("cityAvgPrice").innerHTML += Math.round(city.avgPrice);
-					document.getElementById("cityAvgHotelPrice").innerHTML += Math.round(city.avgHotelPrice);
-					document.getElementById("cityAvgMinNights").innerHTML += Math.round(city.avgMinNights);
-					document.getElementById("cityAvgAvailableNights").innerHTML += Math.round(city.avgAvailability);
+					svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 7);
+					svg1.append("text").attr("x", 38).attr("y", 52).text("3").style("font-size", 8);
 
-					if (USAprojection([city.longitude, city.latitude])[0] < width / 2) {
-						svg1.select("#CityInfo").attr("x", city_x + 10)
-							.attr("y", city_y - 10)
-							.style("text-anchor", "start")
-							.text(string).style("opacity", 1);
-					} else {
-						if (city.name == "New Orleans") {
-							svg1.select("#CityInfo").attr("x", city_x + 80)
-								.attr("y", city_y - 10)
-								.style("text-anchor", "end")
-								.text(string).style("opacity", 1);
-						} else {
-							svg1.select("#CityInfo").attr("x", city_x + 20)
-								.attr("y", city_y - 10)
-								.style("text-anchor", "end")
-								.text(string).style("opacity", 1);
+					svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 19.5);
+					svg1.append("text").attr("x", 38).attr("y", 40).text("5").style("font-size", 8);
+
+					svg1.append("circle").attr("class", "scaleCircles").attr("cx", 39).attr("cy", 50).attr("r", 38);
+					svg1.append("text").attr("x", 38).attr("y", 28).text("7").style("font-size", 8);
+
+					svg1.append("text").attr("x", 400).attr("y", 20).text("Number of listings in thousands").style("font-size", 16);
+
+					var cityInfo = svg1.append("text").
+					attr("id", "CityInfo").
+					style("font-size", "1em").
+					style("fill", "black");
+
+					// cities array
+					cities = [{
+						name: "Austin",
+						longitude: -97.7431,
+						latitude: 30.2672,
+						variable: rawAustin,
+						avgHotelPrice: null
+					}, {
+						name: "Boston",
+						longitude: -71.0589,
+						latitude: 42.3601,
+						variable: rawBoston
+					}, {
+						name: "Chicago",
+						longitude: -87.6298,
+						latitude: 41.8781,
+						variable: rawChicago
+					}, {
+						name: "Washington D.C.",
+						longitude: -77.0369,
+						latitude: 38.9072,
+						variable: rawDC
+					}, {
+						name: "Los Angeles",
+						longitude: -118.2437,
+						latitude: 34.0522,
+						variable: rawBoston
+					}, {
+						name: "Nashville",
+						longitude: -86.7816,
+						latitude: 36.1627,
+						variable: rawNashville,
+						avgHotelPrice: null
+					}, {
+						name: "New Orleans",
+						longitude: -90.0715,
+						latitude: 29.9511,
+						variable: rawNewOrleans
+					}, {
+						name: "New York",
+						longitude: -74.0059,
+						latitude: 40.7128,
+						variable: rawNYC
+					}, {
+						name: "Portland",
+						longitude: -122.6765,
+						latitude: 45.5231,
+						variable: rawPortland,
+						avgHotelPrice: null
+					}, {
+						name: "San Diego",
+						longitude: -117.1611,
+						latitude: 32.7157,
+						variable: rawSanDiego
+					}, {
+						name: "Seattle",
+						longitude: -122.3321,
+						latitude: 47.6062,
+						variable: rawSeattle
+					}, {
+						name: "San Francisco",
+						longitude: -122.4194,
+						latitude: 37.7749,
+						variable: rawSF
+					}];
+
+					// for regex purposes
+					var re = /room/;
+
+					// adding attributes to cities programmatically
+					for (var i = 0; i < cities.length; i++) {
+						cities[i].avgPrice = d3.mean(cities[i].variable, function(d) {
+							if ((d.room_type).match(re)) {
+								return d.price;
+							}
+						});
+
+						cities[i].avgMinNights = d3.mean(cities[i].variable, function(d) {
+							if ((d.room_type).match(re)) {
+								return d.minimum_nights;
+							}
+						});
+
+						cities[i].avgAvailability = d3.mean(cities[i].variable, function(d) {
+							if ((d.room_type).match(re)) {
+								return d.availability_365;
+							}
+						});
+
+						// add hotel averages
+						for (var j = 0; j < rawHotel.length; j++) {
+							if (rawHotel[j].City == cities[i].name) {
+								// turn city object into array
+								var cityHotelArray = Object.keys(rawHotel[j]).map(function(key) {
+									return rawHotel[j][key];
+								});
+
+								cities[i].avgHotelPrice = d3.mean(cityHotelArray, function(d) {
+									if (d.length == 3) {
+										return parseFloat(d);
+									}
+								})
+								//console.log("city:" + rawHotel[j].City);
+							}
 						}
 					}
-				}
 
+					var sliderPrice = price_slider.max / 2,
+						sliderMinNights = min_nights_slider.max / 2,
+						sliderAvailability = (availability_slider.max + availability_slider.min) / 2;
 
-				function changeCircles(sliderData) {
-					document.getElementById("availabilityValue").innerHTML = availability_slider.value + " Nights";
-					document.getElementById("minNightsValue").innerHTML = min_nights_slider.value + " Nights";
-					document.getElementById("priceValue").innerHTML = "$" + price_slider.value;
+					var priceSlider = d3.select("#priceSlider");
+					priceSlider.on("input", function() {
+						sliderPrice = this.value;
+						changeCircles();
+					});
+
+					var minNightsSlider = d3.select("#minNightsSlider");
+					minNightsSlider.on("input", function() {
+						sliderMinNights = this.value;
+						changeCircles();
+					});
+
+					var availabilitySlider = d3.select("#availabilitySlider");
+					availabilitySlider.on("input", function() {
+						sliderAvailability = this.value;
+						changeCircles();
+					});
 
 					var selectedCities = cities.filter(function(d) {
 						return ((d.avgPrice < sliderPrice) && (d.avgMinNights < sliderMinNights) && (d.avgAvailability < sliderAvailability));
 					});
 
-					var selectedCitiesNames = [];
-					selectedCities.forEach(function (city) {
-						selectedCitiesNames.push(city.name);
-					});
-
-					svg1.selectAll("circle.mapCircles").each(function (d) {
-						var thisCityName = d3.select(this).attr("data-name");
-						if (selectedCitiesNames.indexOf(thisCityName) != -1) {
-							d3.select(this).attr("visibility", "visible");
-						} else {
-							d3.select(this).attr("visibility", "hidden");
-						}
-					});
-
-					svg1.selectAll("circle.clickedCircles").each(function (d) {
-						var thisCityName = d3.select(this).attr("data-name");
-						if (selectedCitiesNames.indexOf(thisCityName) != -1) {
-							d3.select(this).attr("visibility", "visible");
-						} else {
-							d3.select(this).attr("visibility", "hidden");
-						}
-					});
-				}
-
-                function showCitiesInfo(cities) {
-                    var attrRangesDict = 
-                    	{"price": [0,300], 
-                    	 "minimum_nights": [0, 30], 
-                    	 "availability_365": [0, 365]};
-                    var attrFrequencyRangesDict = 
-                    	{"price": [0,15], 
-                    	 "minimum_nights": [0, 60], 
-                    	 "availability_365": [0, 35]};
-                    var attrStepSizesDict = 
-                    	{"price": 10, 
-                    	 "minimum_nights": 1, 
-                    	 "availability_365": 5};
-                    var attrLabelsDict = 
-                    	{"price": "Price Per Night", 
-                    	 "minimum_nights": "Minimum Nights of Stay", 
-                    	 "availability_365": "Annual Availability"};
-
-                    var attrTitleDict = 
-                    	{"price": "Frequency of Airbnb Prices", 
-                    	 "minimum_nights": "Frequency of Minimum Nights of Stay in Airbnb Homes", 
-                    	 "availability_365": "Annual Availability of Airbnb Homes"};
-
-                    var attr = document.querySelector('input[name = "frequencyOption"]:checked').value;
-                    var attrRange = attrRangesDict[attr];
-                    var attrFrequencyRange = attrFrequencyRangesDict[attr];
-                    var attrStepSize = attrStepSizesDict[attr];
-                    var attrLabel = attrLabelsDict[attr];
-                    var attrTitle = attrTitleDict[attr];
-
-                    var cityAttrFrequencyData = 
-                    	getCityAttrFrequencyData(cities, attr, attrStepSize, attrRange[1]);
-                    console.log(cityAttrFrequencyData);
-
-                    var cityScale = d3.scaleOrdinal(d3.schemeCategory20);
-                    var frequencyScale = d3.scaleLinear()
-                    .domain(attrFrequencyRange)
-                    .range([300, 0]);
-                    var frequencyAxis = d3.axisLeft(frequencyScale);
-                    
-                    var attrScale = d3.scaleLinear()
-                    .domain(attrRange)
-                    .range([0, 500]);
-
-                    var attrAxis = d3.axisBottom(attrScale);
-                    var svg = d3.select("svg:nth-child(2)");
-                    svg.selectAll("*").remove();
-
-                    svg.append("text")
-                    .attr("x", 325)
-                    .attr("y", 25)
-                    .text(attrTitle)
-                    .style("text-anchor", "middle")
-                    .style("font-size", "18pt");
-
-                    svg.append("text")
-                    .attr("id", "CityName")
-                    .attr("x", 450)
-                    .attr("y", 60)
-                    .style("font-size", "18pt");
-
-                    svg.append("text")
-                    .attr("x", -200)
-                    .attr("y", 20)
-                    .attr("transform", "rotate(-90)")
-                    .text("Percent Frequency")
-                    .style("text-anchor", "middle")
-                    .style("font-size", "14pt");
-
-                    svg.append("text")
-                    .attr("x", 325)
-                    .attr("y", 390)
-                    .text(attrLabel)
-                    .style("text-anchor", "middle")
-                    .style("font-size", "14pt");
-
-                    var plot = svg.append("g")
-                    .attr("transform", "translate(50,50)");
-
-                    plot.append("g")
-                    .call(attrAxis)
-                    .attr("transform", "translate(0,300)");
-
-                    plot.append("g")
-                    .call(frequencyAxis)
-                    .attr("transform", "translate(0,0)");
-                    
-                    var attrPathGenerator = d3.line()
-                    .x(function (d) { return attrScale(d[attr])})
-                    .y(function (d) { return frequencyScale(d["frequency"])});
-
-                    var paths = plot.selectAll("path.lineGraph").data(cityAttrFrequencyData);
-                    paths.enter()
-                    .append("path")
-                    .merge(paths)
-                    .on("mouseover", function (d) {
-                        svg.select("#CityName").text(d["city"]);
-                    })
-                    .attr("class", "lineGraph")
-                    .attr("d", function(city) {
-                        return attrPathGenerator(city["attrFrequencyData"]);
-                    })
-                    .attr("style", "fill: none; stroke-width: 2;")
-                    .style("stroke", function(city, i) {
-                        return cityScale(i);
-                    })
-                    .transition()
-                    .duration(1000);
-                }
-
-				function getCityAttrFrequencyData(cities, attr, attrStepSize, attrMax) {
-					var cityAttrFrequencyData = [];
+					var clickedCities = [];
 
 					cities.forEach(function(city) {
-						var individualCityAttrFrequencyData = {
-							"city": city.name,
-							"attrFrequencyData": []
-						};
-						var aggregateFrequency = 0;
-						var attrFrequencyDataDict = {};
-						city.variable.forEach(function(cityEntry) {
-							var cityEntryAttr = cityEntry[attr];
-							if (cityEntryAttr != undefined && !isNaN(cityEntryAttr)) {
-								if (cityEntryAttr <= attrMax) {
-									aggregateFrequency += 1;
-									cityEntryAttr = Math.floor(cityEntryAttr / attrStepSize) * attrStepSize;
-									if (attrFrequencyDataDict.hasOwnProperty(cityEntryAttr)) {
-										attrFrequencyDataDict[cityEntryAttr] += 1;
-									} else {
-										attrFrequencyDataDict[cityEntryAttr] = 1;
-									}
+						svg1.append("circle")
+							.attr("data-name", city.name)
+							.attr("class", "mapCircles")
+							.style("visibility", function() {
+
+							})
+							.attr("r", circleScale(city.variable.length))
+							.attr("cx", USAprojection([city.longitude, city.latitude])[0])
+							.attr("cy", USAprojection([city.longitude, city.latitude])[1])
+							.on("mouseover", function() {
+								hoverOnCity(city);
+							})
+							.on("mouseout", function() {
+								svg1.selectAll("rect").remove();
+								svg1.select("#CityInfo").style("opacity", 0);
+								document.getElementById("cityName").innerHTML = "City: ";
+								document.getElementById("cityAvgPrice").innerHTML = "Average Airbnb Price: ";
+								document.getElementById("cityAvgHotelPrice").innerHTML = "Average hotel Price: ";
+								document.getElementById("cityAvgMinNights").innerHTML = "Average minimum number of nights: ";
+								document.getElementById("cityAvgAvailableNights").innerHTML = "Average available days out of year: ";
+							})
+							.on("click", function() {
+								if (clickedCities.indexOf(city) == -1) {
+									clickedCities.push(city);
+									d3.select(this).attr("class", "clickedCircles");
+								} else {
+									clickedCities.splice(clickedCities.indexOf(city), 1);
+									d3.select(this).attr("class", "mapCircles");
 								}
-							}
+								showCitiesInfo(clickedCities);
+							});
+					});
+
+					changeCircles();
+
+					d3.selectAll('input[name = "frequencyOption"]')
+						.on("click", function() {
+							showCitiesInfo(clickedCities);
 						});
-						var attrFrequencyDataArray = [];
-						for (var key in attrFrequencyDataDict) {
-							if (attrFrequencyDataDict.hasOwnProperty(key)) {
-								var attrObject = {
-									"frequency": (attrFrequencyDataDict[key] / aggregateFrequency) * 100
-								};
-								attrObject[attr] = key;
-								attrFrequencyDataArray.push(attrObject);
+					showCitiesInfo(clickedCities);
+
+					// for hovering on city
+					var hoverOnCity = function(city) {
+						// if city is to the left of the svg1
+						var city_x = USAprojection([city.longitude, city.latitude])[0];
+						var city_y = USAprojection([city.longitude, city.latitude])[1];
+
+
+						var timesGreater = city.avgHotelPrice / city.avgPrice;
+						var string = city.name + "'s average hotel price is " + timesGreater.toFixed(2) + " times more expensive than average Airbnb price";
+
+						if (timesGreater == 0) {
+							string = "No hotel prices data for " + city.name;
+						}
+
+						document.getElementById("cityName").innerHTML += city.name;
+						document.getElementById("cityAvgPrice").innerHTML += Math.round(city.avgPrice);
+						document.getElementById("cityAvgHotelPrice").innerHTML += Math.round(city.avgHotelPrice);
+						document.getElementById("cityAvgMinNights").innerHTML += Math.round(city.avgMinNights);
+						document.getElementById("cityAvgAvailableNights").innerHTML += Math.round(city.avgAvailability);
+
+						if (USAprojection([city.longitude, city.latitude])[0] < width / 2) {
+							svg1.select("#CityInfo").attr("x", city_x + 10)
+								.attr("y", city_y - 10)
+								.style("text-anchor", "start")
+								.text(string).style("opacity", 1);
+						} else {
+							if (city.name == "New Orleans") {
+								svg1.select("#CityInfo").attr("x", city_x + 80)
+									.attr("y", city_y - 10)
+									.style("text-anchor", "end")
+									.text(string).style("opacity", 1);
+							} else {
+								svg1.select("#CityInfo").attr("x", city_x + 20)
+									.attr("y", city_y - 10)
+									.style("text-anchor", "end")
+									.text(string).style("opacity", 1);
 							}
 						}
-						individualCityAttrFrequencyData["attrFrequencyData"] =
-							attrFrequencyDataArray;
-						cityAttrFrequencyData.push(individualCityAttrFrequencyData)
+					}
+
+
+					function changeCircles(sliderData) {
+						document.getElementById("availabilityValue").innerHTML = availability_slider.value + " Nights";
+						document.getElementById("minNightsValue").innerHTML = min_nights_slider.value + " Nights";
+						document.getElementById("priceValue").innerHTML = "$" + price_slider.value;
+
+						var selectedCities = cities.filter(function(d) {
+							return ((d.avgPrice < sliderPrice) && (d.avgMinNights < sliderMinNights) && (d.avgAvailability < sliderAvailability));
+						});
+
+
+						var selectedCitiesNames = [];
+						selectedCities.forEach(function(city) {
+							selectedCitiesNames.push(city.name);
+						});
+
+						//console.log(selectedCities);
+						svg1.selectAll("circle.mapCircles").style("visibility", "hidden");
+						svg1.selectAll("circle.clickedCircles").style("visibility", "hidden");
+
+						showCitiesInfo([]);
+
+						selectedCities.forEach(function(city) {
+							svg1.append("circle")
+								.attr("visibility", "visible")
+								.attr("class", "mapCircles")
+								.attr("r", circleScale(city.variable.length))
+								.attr("cx", USAprojection([city.longitude, city.latitude])[0])
+								.attr("cy", USAprojection([city.longitude, city.latitude])[1])
+								.on("mouseover", function() {
+
+									hoverOnCity(city);
+								})
+								.on("mouseout", function() {
+									svg1.select("#CityInfo").style("opacity", 0);
+									document.getElementById("cityName").innerHTML = "City: ";
+									document.getElementById("cityAvgPrice").innerHTML = "Average airBNB Price: ";
+									document.getElementById("cityAvgHotelPrice").innerHTML = "Average hotel Price: ";
+									document.getElementById("cityAvgMinNights").innerHTML = "Average minimum number of nights: ";
+									document.getElementById("cityAvgAvailableNights").innerHTML = "Average available days out of year: ";
+								})
+								.on("click", function() {
+									if (clickedCities.indexOf(city) == -1) {
+										// add to array if city doesn't already exist
+										clickedCities.push(city);
+										d3.select(this).attr("class", "clickedCircles");
+									} else {
+										// remove city from array if it already exists
+										clickedCities.splice(clickedCities.indexOf(city), 1);
+										d3.select(this).attr("class", "mapCircles");
+									}
+
+									showCitiesInfo(clickedCities);
+									//var paths = svg1.selectAll("path").data(states.features);
+
+								});
+
+
+							svg1.selectAll("circle.mapCircles").each(function(d) {
+								var thisCityName = d3.select(this).attr("data-name");
+								if (selectedCitiesNames.indexOf(thisCityName) != -1) {
+									d3.select(this).attr("visibility", "visible");
+								} else {
+									d3.select(this).attr("visibility", "hidden");
+								}
+							});
+
+							svg1.selectAll("circle.clickedCircles").each(function(d) {
+								var thisCityName = d3.select(this).attr("data-name");
+								if (selectedCitiesNames.indexOf(thisCityName) != -1) {
+									d3.select(this).attr("visibility", "visible");
+								} else {
+									d3.select(this).attr("visibility", "hidden");
+								}
+							});
+						})
+
+						function showCitiesInfo(cities) {
+							var attrRangesDict = {
+								"price": [0, 300],
+								"minimum_nights": [0, 30],
+								"availability_365": [0, 365]
+							};
+							var attrFrequencyRangesDict = {
+								"price": [0, 15],
+								"minimum_nights": [0, 60],
+								"availability_365": [0, 35]
+							};
+							var attrStepSizesDict = {
+								"price": 10,
+								"minimum_nights": 1,
+								"availability_365": 5
+							};
+							var attrLabelsDict = {
+								"price": "Price Per Night",
+								"minimum_nights": "Minimum Nights of Stay",
+								"availability_365": "Annual Availability"
+							};
+
+							var attrTitleDict = {
+								"price": "Frequency of Airbnb Prices",
+								"minimum_nights": "Frequency of Minimum Nights of Stay in Airbnb Homes",
+								"availability_365": "Annual Availability of Airbnb Homes"
+							};
+
+							var attr = document.querySelector('input[name = "frequencyOption"]:checked').value;
+							var attrRange = attrRangesDict[attr];
+							var attrFrequencyRange = attrFrequencyRangesDict[attr];
+							var attrStepSize = attrStepSizesDict[attr];
+							var attrLabel = attrLabelsDict[attr];
+							var attrTitle = attrTitleDict[attr];
+
+							var cityAttrFrequencyData =
+								getCityAttrFrequencyData(cities, attr, attrStepSize, attrRange[1]);
+							console.log(cityAttrFrequencyData);
+
+							var cityScale = d3.scaleOrdinal(d3.schemeCategory20);
+							var frequencyScale = d3.scaleLinear()
+								.domain(attrFrequencyRange)
+								.range([300, 0]);
+							var frequencyAxis = d3.axisLeft(frequencyScale);
+
+							var attrScale = d3.scaleLinear()
+								.domain(attrRange)
+								.range([0, 500]);
+
+							var attrAxis = d3.axisBottom(attrScale);
+							var svg = d3.select("svg:nth-child(2)");
+							svg.selectAll("*").remove();
+
+							svg.append("text")
+								.attr("x", 325)
+								.attr("y", 25)
+								.text(attrTitle)
+								.style("text-anchor", "middle")
+								.style("font-size", "18pt");
+
+							svg.append("text")
+								.attr("id", "CityName")
+								.attr("x", 450)
+								.attr("y", 60)
+								.style("font-size", "18pt");
+
+							svg.append("text")
+								.attr("x", -200)
+								.attr("y", 20)
+								.attr("transform", "rotate(-90)")
+								.text("Percent Frequency")
+								.style("text-anchor", "middle")
+								.style("font-size", "14pt");
+
+							svg.append("text")
+								.attr("x", 325)
+								.attr("y", 390)
+								.text(attrLabel)
+								.style("text-anchor", "middle")
+								.style("font-size", "14pt");
+
+							var plot = svg.append("g")
+								.attr("transform", "translate(50,50)");
+
+							plot.append("g")
+								.call(attrAxis)
+								.attr("transform", "translate(0,300)");
+
+							plot.append("g")
+								.call(frequencyAxis)
+								.attr("transform", "translate(0,0)");
+
+							var attrPathGenerator = d3.line()
+								.x(function(d) {
+									return attrScale(d[attr])
+								})
+								.y(function(d) {
+									return frequencyScale(d["frequency"])
+								});
+
+							var paths = plot.selectAll("path.lineGraph").data(cityAttrFrequencyData);
+							paths.enter()
+								.append("path")
+								.merge(paths)
+								.on("mouseover", function(d) {
+									svg.select("#CityName").text(d["city"]);
+								})
+								.attr("class", "lineGraph")
+								.attr("d", function(city) {
+									return attrPathGenerator(city["attrFrequencyData"]);
+								})
+								.attr("style", "fill: none; stroke-width: 2;")
+								.style("stroke", function(city, i) {
+									return cityScale(i);
+								})
+								.transition()
+								.duration(1000);
+						}
+
+						function getCityAttrFrequencyData(cities, attr, attrStepSize, attrMax) {
+							var cityAttrFrequencyData = [];
+
+							cities.forEach(function(city) {
+								var individualCityAttrFrequencyData = {
+									"city": city.name,
+									"attrFrequencyData": []
+								};
+								var aggregateFrequency = 0;
+								var attrFrequencyDataDict = {};
+								city.variable.forEach(function(cityEntry) {
+									var cityEntryAttr = cityEntry[attr];
+									if (cityEntryAttr != undefined && !isNaN(cityEntryAttr)) {
+										if (cityEntryAttr <= attrMax) {
+											aggregateFrequency += 1;
+											cityEntryAttr = Math.floor(cityEntryAttr / attrStepSize) * attrStepSize;
+											if (attrFrequencyDataDict.hasOwnProperty(cityEntryAttr)) {
+												attrFrequencyDataDict[cityEntryAttr] += 1;
+											} else {
+												attrFrequencyDataDict[cityEntryAttr] = 1;
+											}
+										}
+									}
+								});
+								var attrFrequencyDataArray = [];
+								for (var key in attrFrequencyDataDict) {
+									if (attrFrequencyDataDict.hasOwnProperty(key)) {
+										var attrObject = {
+											"frequency": (attrFrequencyDataDict[key] / aggregateFrequency) * 100
+										};
+										attrObject[attr] = key;
+										attrFrequencyDataArray.push(attrObject);
+									}
+								}
+								individualCityAttrFrequencyData["attrFrequencyData"] =
+									attrFrequencyDataArray;
+								cityAttrFrequencyData.push(individualCityAttrFrequencyData)
+							});
+							return cityAttrFrequencyData;
+						}
 					});
-					return cityAttrFrequencyData;
-				}
-			});
 	</script>
 
 	<div class="credits">Icons made by <a href="http://www.flaticon.com/authors/darius-dan" title="Darius Dan">Darius Dan</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by
