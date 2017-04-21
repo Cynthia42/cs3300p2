@@ -538,11 +538,17 @@
                     	 "minimum_nights": "Minimum Nights of Stay", 
                     	 "availability_365": "Annual Availability"};
 
+                    var attrTitleDict = 
+                    	{"price": "Frequency of AirBnB Prices", 
+                    	 "minimum_nights": "Frequency of Minimum Nights of Stay in AirBnB Homes", 
+                    	 "availability_365": "Annual Availability of AirBnB Homes"};
+
                     var attr = document.querySelector('input[name = "frequencyOption"]:checked').value;
                     var attrRange = attrRangesDict[attr];
                     var attrFrequencyRange = attrFrequencyRangesDict[attr];
                     var attrStepSize = attrStepSizesDict[attr];
                     var attrLabel = attrLabelsDict[attr];
+                    var attrTitle = attrTitleDict[attr];
 
                     var cityAttrFrequencyData = 
                     	getCityAttrFrequencyData(cities, attr, attrStepSize, attrRange[1]);
@@ -563,13 +569,19 @@
                     svg.selectAll("*").remove();
 
                     svg.append("text")
-                    .attr("id", "CityName")
-                    .attr("x", 10)
-                    .attr("y", 28)
+                    .attr("x", 400)
+                    .attr("y", 25)
+                    .text(attrTitle)
+                    .style("text-anchor", "middle")
                     .style("font-size", "18pt");
 
                     svg.append("text")
                     .attr("id", "CityName")
+                    .attr("x", 550)
+                    .attr("y", 60)
+                    .style("font-size", "18pt");
+
+                    svg.append("text")
                     .attr("x", -300)
                     .attr("y", 20)
                     .attr("transform", "rotate(-90)")
@@ -578,7 +590,6 @@
                     .style("font-size", "14pt");
 
                     svg.append("text")
-                    .attr("id", "CityName")
                     .attr("x", 400)
                     .attr("y", 580)
                     .text(attrLabel)
